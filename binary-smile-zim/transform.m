@@ -1,3 +1,4 @@
+% author @ Zim
 function data = transform(points, type)
     data = zeros(size(points, 1)*size(points, 2), size(points, 3));
     
