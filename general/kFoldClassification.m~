@@ -1,0 +1,13 @@
+% Author: VIMLAN G
+% parameters(data,kFold), returns two matrices with dimension([kFold])
+function [training_batch,validation_batch] = kFoldClassification(data,kFold)
+    batchSize = floor(size(data,1)/kFold);
+    for c = 0:kFold-1
+        tempData = data;
+        validation(c+1,:,:) = (tempData((c*batchSize)+1:((c+1)*batchSize),:));
+        tempData((c*batchSize)+1:((c+1)*batchSize),:) = [];
+        training(c+1,:,:) = tempData;
+    end
+    training_batch = training;
+    validation_batch =  validation;
+end
