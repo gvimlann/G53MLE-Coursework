@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 function [accuracy recall precision f1_measure] = confusion_rates(confusion_matrix)
+=======
+function rates = confusion_rates(confusion_matrix, ret_table)
+>>>>>>> Created newff script template, incomplete for now
 %CONFUSION_RATES Compute the required rates based on confusion matrix
 
 rate_row_cnt = 4;
@@ -24,6 +28,13 @@ elseif s_cm(2) > 2
             f1_measure = 2 / ((1 / recall + (1 / precision))); % F1-measure
         end
     end
+<<<<<<< HEAD
+=======
+end
+
+if ret_table == 1
+    rates = table(rates, 'VariableNames', {'Rates'}, 'RowNames', {'Accuracy' 'Recall' 'Precision' 'F1-measure'});
+>>>>>>> Created newff script template, incomplete for now
 end
 
 end

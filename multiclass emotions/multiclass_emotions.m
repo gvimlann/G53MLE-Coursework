@@ -68,4 +68,3 @@ plotperform(tr);
 % [net tr] = train(net, X, Y);
 % plotperform(tr);
 %=================================
-
