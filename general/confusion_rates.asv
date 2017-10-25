@@ -1,6 +1,0 @@
-function rates = confusion_rates(confusion_matrix)
-%CONFUSION_RATES Compute the required rates based on confusion matrix
-
-
-end
-
