@@ -10,21 +10,21 @@ X = x'; % features
 Y = label_encode(y)'; % labels
 
 % cross validation
-[train test] = crossvalind('HoldOut', length(X), train_test_split_ratio);
-X_train = X(:, train);
-Y_train = Y(:, train);
-X_test = X(:, test);
-Y_test = Y(:, test);
-train_indices = crossvalind('Kfold', length(train), k_fold_cnt);
+[d_train d_test] = crossvalind('HoldOut', length(X), train_test_split_ratio);
+X_train = X(:, d_train);
+Y_train = Y(:, d_train);
+X_test = X(:, d_test);
+Y_test = Y(:, d_test);
+train_indices = crossvalind('Kfold', length(Y_train), k_fold_cnt);
 
 % init NN
 net_p = minmax(X);
 net_t = Y;
 net_si = [136 68 34 17 8]; % NN hidden layer and nodes
-net_tfi = {'logsig' 'logsig' 'logsig' 'logsig' 'logsig'}; % NN transfer function
+net_tfi = {'softmax' 'logsig' 'logsig' 'logsig' 'softmax'}; % NN transfer function
 net_btf = 'traingda'; % NN training function
 net_blf = 'learngdm'; % NN weight/bias learning function
-net_pf = 'softmax'; % NN performance function
+net_pf = 'msereg'; % NN performance function
 net_ipf = {}; % NN row cell array input processing function
 net_opf = {}; % NN row cell array output processing function
 net_ddf = {}; % NN data diversion function
@@ -35,11 +35,11 @@ net = newff(net_p, net_t, net_si, net_tfi, net_btf, net_blf, net_pf);
 net.trainParam.showWindow = true;
 net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
-net.trainParam.epochs = 1000;
+net.trainParam.epochs = 100000;
 net.trainParam.time = inf;
 net.trainParam.goal = 0;
 net.trainParam.min_grad = 1e-07;
-net.trainParam.max_fail = 6;
+net.trainParam.max_fail = 100;
 % NN training params
 switch net_btf
     case {'trainlm'}
@@ -57,10 +57,15 @@ switch net_btf
 end
 
 % train NN
-% for i = 1:k_fold_cnt
-%     k_test_indices = (train_indices == i);
-%     k_train_indices = ~k_test_indices;
-%     [net tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
-%     plotperform(tr);
-% end
+for i = 1:k_fold_cnt
+    k_test_indices = (train_indices == i);
+    k_train_indices = ~k_test_indices;
+    [net tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
+end
+plotperform(tr);
+
+%=======test space================
+% [net tr] = train(net, X, Y);
+% plotperform(tr);
+%=================================
 
