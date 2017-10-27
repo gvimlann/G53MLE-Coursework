@@ -2,7 +2,7 @@
 
 % constants
 k_fold_cnt = 10; % Number of k-folds cross validation
-train_test_split_ratio = 0.2; % ratio for splitting train and test set
+holdout_ratio = 0.2; % ratio for splitting train and test set
 
 % Create data
 load emotions_data.mat
@@ -10,18 +10,18 @@ X = x'; % features
 Y = label_encode(y)'; % labels
 
 % cross validation
-[d_train,d_test] = crossvalind('HoldOut', length(X), train_test_split_ratio);
+[d_train,d_test] = holdout(X, holdout_ratio);
 X_train = X(:, d_train);
 Y_train = Y(:, d_train);
 X_test = X(:, d_test);
 Y_test = Y(:, d_test);
-train_indices = crossvalind('Kfold', length(Y_train), k_fold_cnt);
+train_indices = kfold(X_train, k_fold_cnt);
 
 % init NN
 net_p = minmax(X);
-net_t = Y;
+net_t = Y;\
 net_si = [136 68 17]; % NN hidden layer and nodes
-net_tfi = {'logsig' 'logsig' 'logsig' 'logsig' 'softmax'}; % NN transfer function
+net_tfi = {'logsig' 'logsig' 'logsig' 'logsig' 'softmax'}; % NN transfer function\
 net_btf = 'traingda'; % NN training function
 net_blf = 'learngdm'; % NN weight/bias learning function
 net_pf = 'msereg'; % NN performance function
@@ -66,7 +66,6 @@ end
 netsim = sim(net, X_test);
 plotperform(tr);
 plotconfusion(Y_test,net(X_test))
-
 
 %=======test space================
 % [net tr] = train(net, X, Y);
