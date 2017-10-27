@@ -13,8 +13,9 @@ function [htrain,htest] = holdout(data,test_ratio)
     test_perm_idx = randperm(data, rd)';
     
     for i = 1:rd
-        htest(test_perm_idx(i)) = 1;
+        htest(test_perm_idx(i)) = true;
     end
+    htest = logical(htest);
     htrain = ~htest;
         
 end

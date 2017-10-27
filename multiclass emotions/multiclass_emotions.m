@@ -15,13 +15,13 @@ X_train = X(:, d_train);
 Y_train = Y(:, d_train);
 X_test = X(:, d_test);
 Y_test = Y(:, d_test);
-train_indices = kfold(X_train, k_fold_cnt);
+train_indices = kfoldcross(X_train, k_fold_cnt);
 
 % init NN
 net_p = minmax(X);
-net_t = Y;\
+net_t = Y;
 net_si = [136 68 17]; % NN hidden layer and nodes
-net_tfi = {'logsig' 'logsig' 'logsig' 'logsig' 'softmax'}; % NN transfer function\
+net_tfi = {'logsig' 'tansig' 'softmax'}; % NN transfer function\
 net_btf = 'traingda'; % NN training function
 net_blf = 'learngdm'; % NN weight/bias learning function
 net_pf = 'msereg'; % NN performance function
@@ -61,11 +61,17 @@ for i = 1:k_fold_cnt
     k_test_indices = (train_indices == i);
     k_train_indices = ~k_test_indices;
     [net,tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
+    % average confusion matrix rates
 end
 [net,tr] = train(net, X_test, Y_test);
 netsim = sim(net, X_test);
+
 plotperform(tr);
-plotconfusion(Y_test,net(X_test))
+print('plotperform', '-dpng');
+
+y_confusion = net(X_test);
+plotconfusion(Y_test, y_confusion);
+print('plotconfusion', '-dpng');
 
 %=======test space================
 % [net tr] = train(net, X, Y);
