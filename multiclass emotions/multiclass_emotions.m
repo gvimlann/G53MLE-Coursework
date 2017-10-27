@@ -10,7 +10,7 @@ X = x'; % features
 Y = label_encode(y)'; % labels
 
 % cross validation
-[d_train d_test] = crossvalind('HoldOut', length(X), train_test_split_ratio);
+[d_train,d_test] = crossvalind('HoldOut', length(X), train_test_split_ratio);
 X_train = X(:, d_train);
 Y_train = Y(:, d_train);
 X_test = X(:, d_test);
@@ -20,8 +20,8 @@ train_indices = crossvalind('Kfold', length(Y_train), k_fold_cnt);
 % init NN
 net_p = minmax(X);
 net_t = Y;
-net_si = [136 68 34 17 8]; % NN hidden layer and nodes
-net_tfi = {'softmax' 'logsig' 'logsig' 'logsig' 'softmax'}; % NN transfer function
+net_si = [136 68 17]; % NN hidden layer and nodes
+net_tfi = {'logsig' 'logsig' 'logsig' 'logsig' 'softmax'}; % NN transfer function
 net_btf = 'traingda'; % NN training function
 net_blf = 'learngdm'; % NN weight/bias learning function
 net_pf = 'msereg'; % NN performance function
@@ -60,9 +60,13 @@ end
 for i = 1:k_fold_cnt
     k_test_indices = (train_indices == i);
     k_train_indices = ~k_test_indices;
-    [net tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
+    [net,tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
 end
+[net,tr] = train(net, X_test, Y_test);
+netsim = sim(net, X_test);
 plotperform(tr);
+plotconfusion(Y_test,net(X_test))
+
 
 %=======test space================
 % [net tr] = train(net, X, Y);
