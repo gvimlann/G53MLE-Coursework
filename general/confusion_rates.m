@@ -1,6 +1,5 @@
 function [accuracy recall precision f1_measure] = confusion_rates(confusion_matrix)
 %CONFUSION_RATES Compute the required rates based on confusion matrix
-
     rate_row_cnt = 4;
     s_cm = size(confusion_matrix);
     total = sum(sum(confusion_matrix));
