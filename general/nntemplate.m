@@ -6,9 +6,11 @@ holdout_ratio = 0.2; % ratio for splitting train and test set
 do_holdout = true; % apply train test split?
 
 % Create data
-load emotions_data.mat
-X = x'; % features
-Y = label_encode(y)'; % labels
+load emotions_data.mat % load datasets (change)
+X = x'; % features (change)
+Y = label_encode(y)'; % labels (change)
+
+% initialise training
 X_train = X;
 Y_train = Y;
 % cross validation
@@ -21,7 +23,7 @@ if do_holdout
 end
 train_indices = kfoldcross(X_train, k_fold_cnt);
 
-% init NN
+% init NN (change anything)
 net_p = minmax(X);
 net_t = Y;
 net_si = [142]; % NN hidden layer and nodes
@@ -35,7 +37,7 @@ net_ddf = {}; % NN data diversion function
 
 net = newff(net_p, net_t, net_si, net_tfi, net_btf, net_blf, net_pf);
 
-% NN general params
+% NN general params (change anything)
 net.trainParam.showWindow = true;
 net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
@@ -44,7 +46,7 @@ net.trainParam.time = inf;
 net.trainParam.goal = 0;
 net.trainParam.min_grad = 1e-07;
 net.trainParam.max_fail = 15;
-% NN training params
+% NN training params (change anything)
 switch net_btf
     case {'trainlm'}
         %net.efficiency.memoryReduction = 2; % Reduce memory usage of trainlm
@@ -59,7 +61,7 @@ switch net_btf
         net.trainParam.lr_dec = 0.7;
         net.trainParam.max_perf_inc = 1.04;
 end
-
+% =========usually nothing to change after this line=======================
 % train NN
 Accuracy = zeros([1 k_fold_cnt]);
 Recall = zeros([1 k_fold_cnt]);
