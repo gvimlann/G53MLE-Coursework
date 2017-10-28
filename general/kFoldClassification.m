@@ -3,7 +3,7 @@
 % returns two matrices with dimension - training matrix[kFold,150-batchSize,132] and
 % testing matrix [kFold,batchSize,132]
 function [training_batches,training_labels,validation_batches,validation_labels] = kFoldClassification(points,labels,kFold)
-    batchSize = floor(size(points,1)/kFold);
+    batchSize = floor(size(points,2)/kFold);
     for c = 0:kFold-1
         tempData = points;
         tempLabel = labels;
