@@ -7,6 +7,10 @@ function kindices = kfoldcross(data, k)
     if ~isscalar(data)
         data = length(data);
     end
+    if ~isscalar(k)
+        disp('K-value must be scalar');
+        return;
+    end
     
     kindices = zeros([data 1]);
     perm_idx = randperm(data)';

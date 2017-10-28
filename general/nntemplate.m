@@ -74,7 +74,7 @@ for i = 1:k_fold_cnt
     % NN train
     [net,tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
     % average confusion matrix rates
-    [Accuracy(i) Recall(i) Precision(i) F1_measure] = confusion_rates(gen_confusionmat(Y_train(:, k_train_indices), net(X_train(:, k_train_indices))));
+    [Accuracy(i),Recall(i),Precision(i),F1_measure(i)] = confusion_rates(gen_confusionmat(Y_train(:, k_train_indices), net(X_train(:, k_train_indices))));
 end
 
 if do_holdout
@@ -83,19 +83,17 @@ if do_holdout
     netsim = sim(net, X_test);
     
     y_confusion = net(X_test);
-    [Accuracy(k_fold_cnt+1) Recall(k_fold_cnt+1) Precision(k_fold_cnt+1) F1_measure(k_fold_cnt+1)] = confusion_rates(gen_confusionmat(Y_test, y_confusion));
+    [Accuracy(k_fold_cnt+1),Recall(k_fold_cnt+1),Precision(k_fold_cnt+1),F1_measure(k_fold_cnt+1)] = confusion_rates(gen_confusionmat(Y_test, y_confusion));
     plotconfusion(Y_test, y_confusion);
 else
     y_confusion = net(X_train);
     plotconfusion(Y_train, y_confusion);
 end
+figure;
 print('plotconfusion', '-dpng');
-Accuracy = mean(Accuracy);
-Recall = mean(Recall);
-Precision = mean(Precision);
-F1_measure = mean(F1_measure);
-% TODO: uitable cannot be viewed for some reason
-confusionrates_table = uitable(figure, 'Data', [Accuracy Recall Precision F1_measure], 'ColumnName', {'Accuracy' 'Recall' 'Precision' 'F1_measure'});
-
+avg_confusionrates = [mean(Accuracy); mean(Recall); mean(Precision); mean(F1_measure)];
+confusionrates_table = uitable(figure, 'Data', avg_confusionrates, 'RowName', {'Accuracy' 'Recall' 'Precision' 'F1 Measure'}, 'ColumnName', {'Rates'});
+figure;
 plotperform(tr);
+figure;
 print('plotperform', '-dpng');
