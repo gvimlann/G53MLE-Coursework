@@ -5,6 +5,8 @@ k_fold_cnt = 10; % Number of k-folds cross validation
 holdout_ratio = 0.2; % ratio for splitting train and test set
 do_holdout = true; % apply train test split?
 do_adapt = false; % Adapt NN to current iteration dataset?
+adapt_max_iter = 1000; % adaptation maximum iterations
+adapt_perf_inc = 0.1; % adaptation termination performance increment
 use_gpu = false; % use GPU to train NN instead?
 
 % Create data
@@ -26,8 +28,8 @@ train_indices = kfoldcross(X_train, k_fold_cnt);
 % init NN
 net_p = minmax(X);
 net_t = Y;
-net_si = [142 71 35 17 8]; % NN hidden layer and nodes
-net_tfi = {'tansig' 'tansig' 'tansig' 'tansig' 'softmax'}; % NN transfer function
+net_si = [284 142]; % NN hidden layer and nodes
+net_tfi = {'tansig' 'softmax'}; % NN transfer function
 net_btf = 'traingda'; % NN training function
 net_blf = 'learngdm'; % NN weight/bias learning function
 net_pf = 'mse'; % NN performance function
@@ -82,15 +84,21 @@ for i = 1:k_fold_cnt
     perf(i) = mse(net, Y_train(:, k_train_indices), net(X_train(:, k_train_indices)));
     
     % Adaptation
-    j = 0;
-    % Terminating condition: MSE(CUR) < MEAN(MSE(1:CUR - 1)) || ITER * ITER
-    while(do_adapt && i > 2 && j < i * i && perf(i) > mean(perf(1:i - 1))) 
-        [net,y,e] = adapt(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
-        perf(i) = mse(e);
-        j = j + 1;
+    if do_adapt && i < floor(k_fold_cnt / 2)
+        j = 0;
+%         figure; hold on;
+%         plot(j, tr.best_perf, '--g', 'LineWidth', 2);
+        perf_threshold = tr.best_perf * (1 - adapt_perf_inc);
+        % Terminating condition: MSE(CUR) < MEAN(MSE(1:CUR - 1)) || ITER * ITER
+        while(j < adapt_max_iter && perf(i) > perf_threshold)
+            [net,y,e] = adapt(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
+            perf(i) = mse(e);
+            j = j + 1;
+%             plot(j, perf(i), '--g', 'LineWidth', 2);
+        end
     end
+%     hold off;
     
-    %plottrainstate(tr);
     % average confusion matrix rates
     [Accuracy(i),Recall(i),Precision(i),F1_measure(i)] = confusion_rates(...
         gen_confusionmat(Y_train(:, k_train_indices), net(X_train(:, k_train_indices))));
