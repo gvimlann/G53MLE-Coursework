@@ -1,3 +1,4 @@
+% DEPRECATED: Succeded by built in function 'confusion'
 % @author Boey
 % Generates binary and multiclass confusion matrix
 % Structure of matrix is identical to plotconfusion
