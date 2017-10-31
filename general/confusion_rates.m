@@ -24,6 +24,7 @@ function [accuracy recall precision f1_measure] = confusion_rates(confusion_matr
         end
         recall(isnan(recall)) = 0;
         precision(isnan(precision)) = 0;
+        f1_measure(isnan(f1_measure)) = 0;
         
         recall = mean(recall);
         precision = mean(precision);
