@@ -28,7 +28,7 @@ net_ddf = {}; % NN data diversion function
 net = newff(net_p, net_t, net_si, net_tfi, net_btf, net_blf, net_pf);
 
 % NN general params
-net.trainParam.showWindow = true;
+net.trainParam.showWindow = false;
 net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
 net.trainParam.epochs = 300;
@@ -44,8 +44,8 @@ switch net_btf
         net.trainParam.mu_dec = 0.1;
         net.trainParam.mu_inc = 10;
         net.trainParam.mu_max = 10000000000;
-    case {'traingd' 'traingda'}
-        net.trainParam.lr = 0.01;
+    case {'traingd' 'traingda' 'traingdx'}
+        net.trainParam.lr = 0.001;
     case {'traingda'}
         net.trainParam.lr_inc = 1.05;
         net.trainParam.lr_dec = 0.7;
@@ -54,19 +54,14 @@ end
 
 % train NN
 perf = zeros([1 k_fold_cnt]);
-
-Accuracy = zeros([1 k_fold_cnt]);
-Recall = zeros([1 k_fold_cnt]);
-Precision = zeros([1 k_fold_cnt]);
-F1_measure = zeros([1 k_fold_cnt]);
+vperf = zeros([1 k_fold_cnt]);
+tperf = zeros([1 k_fold_cnt]);
 
 misclassified = zeros([1 k_fold_cnt]);
 confusion_mat = zeros([size(Y_train, 1) size(Y_train, 1) k_fold_cnt]);
-indices = zeros([size(Y_train, 1) size(Y_train, 1) k_fold_cnt]);
 percentage = zeros([size(Y_train, 1) 4 k_fold_cnt]);
 sum_confusion_mat = zeros([size(Y_train, 1) size(Y_train, 1)]);
 
-ep = 0;
 for i = 1:k_fold_cnt
     % data segmentation
     k_test_indices = (train_indices == i);
@@ -80,17 +75,21 @@ for i = 1:k_fold_cnt
     end
     output_label = net(X_train(:, k_test_indices));
     perf(i) = tr.best_perf;
+    vperf(i) = tr.best_vperf;
+    tperf(i) = tr.best_tperf;
     
-    [misclassified(i),confusion_mat(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
+    [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
-    
-    ep = max(ep,tr.best_epoch);
     
     %plotconfusion(Y_train(:, k_test_indices), output_label);
     %print(['plotconfusion_' num2str(i)], '-dpng');
 end
 
 iter = (1:k_fold_cnt);
+plot(iter, perf, iter, vperf, iter, tperf);
+xlabel('Iter');
+ylabel('MSE');
+legend('Train', 'Validation', 'Test');
 
 % MSE plot
 % figure
