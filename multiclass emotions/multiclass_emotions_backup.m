@@ -28,20 +28,14 @@ net_ddf = {}; % NN data diversion function
 net = newff(net_p, net_t, net_si, net_tfi, net_btf, net_blf, net_pf);
 
 % NN general params
-net.trainParam.showWindow = true;
+net.trainParam.showWindow = false;
 net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
 net.trainParam.epochs = 300;
 net.trainParam.time = inf;
-net.trainParam.goal = 0.2;
+net.trainParam.goal = 0;
 net.trainParam.min_grad = 1e-07;
-net.trainParam.max_fail = 6;
-
-% NN data division params
-net.divideParam.trainRatio = 0.8;
-net.divideParam.testRatio = 0;
-net.divideParam.valRatio = 0.2;
-
+net.trainParam.max_fail = 10;
 % NN training params
 switch net_btf
     case {'trainlm'}
@@ -72,7 +66,7 @@ for i = 1:k_fold_cnt
     % data segmentation
     k_test_indices = (train_indices == i);
     k_train_indices = ~k_test_indices;
-
+    
     % NN train
     if use_gpu
         [net,tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices), 'useGPU', 'yes');
@@ -83,19 +77,19 @@ for i = 1:k_fold_cnt
     perf(i) = tr.best_perf;
     vperf(i) = tr.best_vperf;
     tperf(i) = tr.best_tperf;
-
+    
     [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
-
+    
     %plotconfusion(Y_train(:, k_test_indices), output_label);
     %print(['plotconfusion_' num2str(i)], '-dpng');
 end
 
 iter = (1:k_fold_cnt);
-plot(iter, perf, iter, vperf);
-xlabel('Iteration');
-ylabel('Mean Squared Error');
-legend('Train', 'Validation');
+plot(iter, perf, iter, vperf, iter, tperf);
+xlabel('Iter');
+ylabel('MSE');
+legend('Train', 'Validation', 'Test');
 
 % MSE plot
 % figure
@@ -118,7 +112,7 @@ mean_mse = mean(perf);
 % title('Confusion Matrix Rates');
 % xlabel('Iterations');
 % print('cmr', '-dpng');
-%
+% 
 % % Confusion matrix plot
 % avg_confusionrates = [mean(Accuracy); mean(Recall); mean(Precision); mean(F1_measure)];
 % confusionrates_table = uitable(figure, 'Data', avg_confusionrates, ...
