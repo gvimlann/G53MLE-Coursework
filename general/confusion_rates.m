@@ -2,8 +2,8 @@ function [accuracy recall precision f1_measure] = confusion_rates(confusion_matr
 %CONFUSION_RATES Compute the required rates based on confusion matrix
     s_cm = size(confusion_matrix);
 
-    if prod(s_cm) < 9
-        disp('Confusion matrix must have at least 3 columns and rows');
+    if prod(s_cm) < 2
+        disp('Confusion matrix must have at least 2 columns and rows');
         return;
     end
 
