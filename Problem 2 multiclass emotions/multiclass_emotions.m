@@ -33,9 +33,9 @@ net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
 net.trainParam.epochs = 300;
 net.trainParam.time = inf;
-net.trainParam.goal = 0;
+net.trainParam.goal = 0.2;
 net.trainParam.min_grad = 1e-07;
-net.trainParam.max_fail = 10;
+net.trainParam.max_fail = 6;
 
 % NN data division params
 net.divideParam.trainRatio = 0.8;
@@ -92,10 +92,10 @@ for i = 1:k_fold_cnt
 end
 
 iter = (1:k_fold_cnt);
-plot(iter, perf, iter, vperf, iter, tperf);
-xlabel('Iter');
-ylabel('MSE');
-legend('Train', 'Validation', 'Test');
+plot(iter, perf, iter, vperf);
+xlabel('Iteration');
+ylabel('Mean Squared Error');
+legend('Train', 'Validation');
 
 % MSE plot
 % figure

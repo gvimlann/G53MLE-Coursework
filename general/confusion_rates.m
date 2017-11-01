@@ -9,19 +9,20 @@ function [accuracy recall precision f1_measure] = confusion_rates(confusion_matr
 
     accuracy = trace(confusion_matrix) / sum(sum(confusion_matrix)); % Accuracy
     if s_cm(2) == 2 % binary classification
-        recall = confusion_matrix(2, 2) / sum(confusion_matrix(2, :)); % Recall
-        precision = confusion_matrix(2, 2) / sum(confusion_matrix(:, 2)); % Precision
-        f1_measure = 2 / ((1 / recall + (1 / precision))); % F1-measure
+        recall = confusion_matrix(2, 2) / sum(confusion_matrix(:, 2)); % Recall
+        precision = confusion_matrix(2, 2) / sum(confusion_matrix(2, :)); % Precision
+        f1_measure = 2 * ((precision * recall) / (precision + recall)); % F1-measure
     elseif s_cm(2) > 2 % multiclass classification
         recall = zeros([length(confusion_matrix) 1]);
         precision = zeros([length(confusion_matrix) 1]);
         f1_measure = zeros([length(confusion_matrix) 1]);
 
         for i = 1:s_cm(2)
-            recall(i) = confusion_matrix(i, i) / sum(confusion_matrix(i, :)); % Recall
-            precision(i) = confusion_matrix(i, i) / sum(confusion_matrix(:, i)); % Precision
+            recall(i) = confusion_matrix(i, i) / sum(confusion_matrix(:, i)); % Recall
+            precision(i) = confusion_matrix(i, i) / sum(confusion_matrix(i, :)); % Precision
             f1_measure(i) = 2 * (precision(i) * recall(i) / (precision(i) + recall(i))); % F1-measure
         end
+        
         recall(isnan(recall)) = 0;
         precision(isnan(precision)) = 0;
         f1_measure(isnan(f1_measure)) = 0;
