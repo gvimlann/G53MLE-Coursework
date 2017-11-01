@@ -1,7 +1,7 @@
 % @author Boey Emotions data script
 
 % constants
-k_fold_cnt = 10; % Number of k-folds cross validation
+k_fold_cnt = 5; % Number of k-folds cross validation
 use_gpu = false; % use GPU to train NN instead?
 
 % Create data
@@ -20,7 +20,7 @@ net_t = Y;
 net_si = [132]; % NN hidden layer and nodes
 net_tfi = {'tansig' 'tansig'}; % NN transfer function
 net_btf = 'traingd'; % NN training function
-net_blf = 'learngdm'; % NN weight/bias learning function
+net_blf = 'learngd'; % NN weight/bias learning function
 net_pf = 'msereg'; % NN performance function
 net_ipf = {}; % NN row cell array input processing function
 net_opf = {}; % NN row cell array output processing function
@@ -35,7 +35,7 @@ net.trainParam.show = 25;
 net.trainParam.epochs = 3000;
 net.trainParam.time = inf;
 net.trainParam.goal = 0;
-net.trainParam.min_grad = 1e-07;
+net.trainParam.min_grad = 1e-05;
 net.trainParam.max_fail = 30;
 
 % NN data division params
@@ -85,9 +85,6 @@ for i = 1:k_fold_cnt
 
     [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
-
-    %plotconfusion(Y_train(:, k_test_indices), output_label);
-    %print(['plotconfusion_' num2str(i)], '-dpng');
 end
 
 iter = (1:k_fold_cnt);
@@ -96,31 +93,5 @@ xlabel('Iteration');
 ylabel('Mean Squared Error');
 legend('Train', 'Validation');
 
-% MSE plot
-% figure
-% plot(iter, perf, 'b');
-% title('Mean Squared Error Plot');
-% xlabel('Iterations');
-% ylabel('Mean Squared Error (MSE)');
-% print('mseplot', '-dpng');
-
 [acc,rec,pre,f1] = confusion_rates(sum_confusion_mat);
 mean_mse = mean(perf);
-
-% % Confusion matrix rates plot
-% figure
-% plot(iter, Accuracy, 'b', ...
-%     iter, Recall, '--xk', ...
-%     iter, Precision, ':sm', ...
-%     iter, F1_measure, '-.dr');
-% legend('Accuracy', 'Recall', 'Precision', 'F1 Measure');
-% title('Confusion Matrix Rates');
-% xlabel('Iterations');
-% print('cmr', '-dpng');
-%
-% % Confusion matrix plot
-% avg_confusionrates = [mean(Accuracy); mean(Recall); mean(Precision); mean(F1_measure)];
-% confusionrates_table = uitable(figure, 'Data', avg_confusionrates, ...
-%     'RowName', {'Accuracy' 'Recall' 'Precision' 'F1 Measure'}, ...
-%     'ColumnName', {'Rates'});
-% print('confusionrates', '-dpng');

@@ -35,7 +35,7 @@ net.trainParam.show = 25;
 net.trainParam.epochs = 1000;
 net.trainParam.time = inf;
 net.trainParam.goal = 0;
-net.trainParam.min_grad = 1e-07;
+net.trainParam.min_grad = 1e-05;
 net.trainParam.max_fail = 10;
 
 % NN data division params
@@ -62,6 +62,7 @@ end
 % train NN
 perf = zeros([1 k_fold_cnt]);
 vperf = zeros([1 k_fold_cnt]);
+output_label = zeros([size(Y_train, 1) size(Y_train, 2) k_fold_cnt]);
 
 for i = 1:k_fold_cnt
     % data segmentation
@@ -74,12 +75,9 @@ for i = 1:k_fold_cnt
     else
         [net,tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices));
     end
-    output_label = net(X_train(:, k_test_indices));
+    output_label(:, k_test_indices, i) = net(X_train(:, k_test_indices));
     perf(i) = tr.best_perf;
     vperf(i) = tr.best_vperf;
-
-    %plotconfusion(Y_train(:, k_test_indices), output_label);
-    %print(['plotconfusion_' num2str(i)], '-dpng');
 end
 
 iter = (1:k_fold_cnt);
@@ -88,30 +86,4 @@ xlabel('Iteration');
 ylabel('Mean Squared Error');
 legend('Train', 'Validation');
 
-% MSE plot
-% figure
-% plot(iter, perf, 'b');
-% title('Mean Squared Error Plot');
-% xlabel('Iterations');
-% ylabel('Mean Squared Error (MSE)');
-% print('mseplot', '-dpng');
-
 mean_mse = mean(perf);
-
-% % Confusion matrix rates plot
-% figure
-% plot(iter, Accuracy, 'b', ...
-%     iter, Recall, '--xk', ...
-%     iter, Precision, ':sm', ...
-%     iter, F1_measure, '-.dr');
-% legend('Accuracy', 'Recall', 'Precision', 'F1 Measure');
-% title('Confusion Matrix Rates');
-% xlabel('Iterations');
-% print('cmr', '-dpng');
-%
-% % Confusion matrix plot
-% avg_confusionrates = [mean(Accuracy); mean(Recall); mean(Precision); mean(F1_measure)];
-% confusionrates_table = uitable(figure, 'Data', avg_confusionrates, ...
-%     'RowName', {'Accuracy' 'Recall' 'Precision' 'F1 Measure'}, ...
-%     'ColumnName', {'Rates'});
-% print('confusionrates', '-dpng');
