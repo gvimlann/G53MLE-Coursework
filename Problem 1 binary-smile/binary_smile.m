@@ -30,14 +30,14 @@ net_ddf = {}; % NN data diversion function
 net = newff(net_p, net_t, net_si, net_tfi, net_btf, net_blf, net_pf);
 
 % NN general params
-net.trainParam.showWindow = true;
+net.trainParam.showWindow = false;
 net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
 net.trainParam.epochs = 3000;
 net.trainParam.time = inf;
 net.trainParam.goal = 0;
 net.trainParam.min_grad = 1e-05;
-net.trainParam.max_fail = 3000;
+net.trainParam.max_fail = 300;
 
 % NN data division params
 net.divideFcn = 'divideind';
@@ -104,4 +104,7 @@ ylabel('Mean Squared Error');
 legend('Train', 'Validation');
 
 [acc,rec,pre,f1] = confusion_rates(sum_confusion_mat);
-mean_mse = mean(perf);
+mean_trmse = mean(perf);
+mean_valmse = mean(vperf);
+
+        
