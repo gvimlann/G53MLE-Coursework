@@ -62,7 +62,6 @@ end
 % train NN
 perf = zeros([1 k_fold_cnt]);
 vperf = zeros([1 k_fold_cnt]);
-tperf = zeros([1 k_fold_cnt]);
 
 misclassified = zeros([1 k_fold_cnt]);
 confusion_mat = zeros([size(Y_train, 1) size(Y_train, 1) k_fold_cnt]);
@@ -89,7 +88,6 @@ for i = 1:k_fold_cnt
     output_label = net(X_train(:, k_test_indices));
     perf(i) = tr.best_perf;
     vperf(i) = tr.best_vperf;
-    tperf(i) = tr.best_tperf;
     
     [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
@@ -108,4 +106,5 @@ legend('Train', 'Validation');
 print('mse_eaiter', '-dpng');
 
 [acc,rec,pre,f1] = confusion_rates(sum_confusion_mat);
-mean_mse = mean(perf);
+mean_trmse = mean(perf);
+mean_valmse = mean(vperf);

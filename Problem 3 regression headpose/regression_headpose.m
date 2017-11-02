@@ -97,4 +97,5 @@ legend('Train', 'Validation');
 title('Root Mean Square Error per k-fold');
 print('rmse_eaiter', '-dpng');
 
-mean_mse = mean(perf);
+mean_trmse = mean(perf);
+mean_valmse = mean(vperf);

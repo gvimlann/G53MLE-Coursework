@@ -30,7 +30,7 @@ net_ddf = {}; % NN data diversion function
 net = newff(net_p, net_t, net_si, net_tfi, net_btf, net_blf, net_pf);
 
 % NN general params
-net.trainParam.showWindow = false;
+net.trainParam.showWindow = true;
 net.trainParam.showCommandLine = false;
 net.trainParam.show = 25;
 net.trainParam.epochs = 3000;
