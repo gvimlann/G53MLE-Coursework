@@ -38,9 +38,10 @@ net.trainParam.min_grad = 1e-05;
 net.trainParam.max_fail = 10;
 
 % NN data division params
-net.divideParam.trainRatio = 0.8;
-net.divideParam.testRatio = 0;
-net.divideParam.valRatio = 0.2;
+net.divideFcn = 'divideind';
+% net.divideParam.trainRatio = 0.8;
+% net.divideParam.testRatio = 0;
+% net.divideParam.valRatio = 0.2;
 
 % NN training params
 switch net_btf
@@ -51,7 +52,7 @@ switch net_btf
         net.trainParam.mu_inc = 10;
         net.trainParam.mu_max = 10000000000;
     case {'traingd' 'traingda' 'traingdx'}
-        net.trainParam.lr = 0.001;
+        net.trainParam.lr = 0.01;
     case {'traingda'}
         net.trainParam.lr_inc = 1.05;
         net.trainParam.lr_dec = 0.7;
@@ -72,7 +73,13 @@ for i = 1:k_fold_cnt
     % data segmentation
     k_test_indices = (train_indices == i);
     k_train_indices = ~k_test_indices;
-
+    
+    % Manually divide dataset
+    [~,~,~,~,trind,tsind] = holdout(X_train(:, k_train_indices), Y_train(:, k_train_indices), (1/(k_fold_cnt - 1)));
+    net.divideParam.trainInd = find(trind);
+    net.divideParam.valInd = find(tsind);
+    net.divideParam.testInd = [];
+    
     % NN train
     if use_gpu
         [net,tr] = train(net, X_train(:, k_train_indices), Y_train(:, k_train_indices), 'useGPU', 'yes');
@@ -83,9 +90,11 @@ for i = 1:k_fold_cnt
     perf(i) = tr.best_perf;
     vperf(i) = tr.best_vperf;
     tperf(i) = tr.best_tperf;
-    tr.num_epochs
+    
     [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
+    
+    net = init(net);
 end
 
 iter = (1:k_fold_cnt);
