@@ -35,7 +35,7 @@ net.trainParam.epochs = 1000;
 net.trainParam.time = inf;
 net.trainParam.goal = 0.2;
 net.trainParam.min_grad = 1e-05;
-net.trainParam.max_fail = 10;
+net.trainParam.max_fail = 300;
 
 % NN data division params
 net.divideFcn = 'divideind';
@@ -94,6 +94,9 @@ for i = 1:k_fold_cnt
     [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
     
+    plotconfusion(Y_train(:, k_test_indices), output_label);
+    print(['confusionplot_' num2str(i)], '-dpng');
+    
     net = init(net);
 end
 
@@ -102,6 +105,7 @@ plot(iter, perf, iter, vperf);
 xlabel('Iteration');
 ylabel('Mean Squared Error');
 legend('Train', 'Validation');
+print('mse_eaiter', '-dpng');
 
 [acc,rec,pre,f1] = confusion_rates(sum_confusion_mat);
 mean_mse = mean(perf);

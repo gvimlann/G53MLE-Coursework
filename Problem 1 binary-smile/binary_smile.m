@@ -3,8 +3,6 @@
 % constants
 k_fold_cnt = 5; % Number of k-folds cross validation
 use_gpu = false; % use GPU to train NN instead?
-do_holdout = false; % do train test split
-holdout_test_ratio = 0.2; % test ratio amount
 
 % Create data
 load facialPoints.mat
@@ -14,10 +12,6 @@ Y = labels'; % labels
 
 X_train = X;
 Y_train = Y;
-
-if do_holdout
-    [X_train,Y_train,X_test,Y_test] = holdout(X_train, Y_train, holdout_test_ratio);
-end
 
 train_indices = kfoldcross(X_train, k_fold_cnt);
 
@@ -43,7 +37,7 @@ net.trainParam.epochs = 3000;
 net.trainParam.time = inf;
 net.trainParam.goal = 0;
 net.trainParam.min_grad = 1e-05;
-net.trainParam.max_fail = 30;
+net.trainParam.max_fail = 3000;
 
 % NN data division params
 net.divideFcn = 'divideind';
@@ -97,7 +91,7 @@ for i = 1:k_fold_cnt
     perf(i) = tr.best_perf;
     vperf(i) = tr.best_vperf;
 
-    [misclassified(i),confusion_mat(:, :, i),~,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
+    [misclassified(i),confusion_mat(:, :, i),indices,percentage(:, :, i)] = confusion(Y_train(:, k_test_indices), output_label);
     sum_confusion_mat = sum_confusion_mat + confusion_mat(:, :, i);
     
     net = init(net);

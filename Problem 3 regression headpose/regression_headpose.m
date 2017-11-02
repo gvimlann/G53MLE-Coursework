@@ -90,9 +90,11 @@ for i = 1:k_fold_cnt
 end
 
 iter = (1:k_fold_cnt);
-plot(iter, perf, iter, vperf);
+plot(iter, sqrt(perf), iter, sqrt(vperf));
 xlabel('Iteration');
-ylabel('Mean Squared Error');
+ylabel('Root Mean Squared Error');
 legend('Train', 'Validation');
+title('Root Mean Square Error per k-fold');
+print('rmse_eaiter', '-dpng');
 
 mean_mse = mean(perf);
