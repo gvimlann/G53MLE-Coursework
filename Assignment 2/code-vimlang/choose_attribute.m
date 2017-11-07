@@ -9,13 +9,18 @@ function [bestThresholdFeature,bestThresholdFeatureIndex] = choose_attribute(exa
     
     for i=1:numberOfFeatures
             ent = inf;
+            %iterate through the examples of each features
         for j=1:numberOfLabels
             numOfPositiveRight = 0;
             numOfPositiveLeft = 0;
             numOfNegativeRight = 0;
-            numOfNegativeLeft = 0;
+            numOfNegativeLeft = 0; 
             center = examples(j,i);
+            %sets the center of the feature split, iterates each sample for
+            %new center for each feature
             for k=1:numberOfLabels
+                %if sample value of feature is smaller than center, assign
+                %to left side of the node else right
                 if(examples(k,i) < center)
                     if(labels(k,1) == 1)
                         numOfPositiveLeft = numOfPositiveLeft + 1;
@@ -30,8 +35,10 @@ function [bestThresholdFeature,bestThresholdFeatureIndex] = choose_attribute(exa
                     end
                 end
             end
+            %Remainder function
             tempEnt = (numOfPositiveLeft+numOfNegativeLeft)/numberOfLabels * calculateEntropy(numOfPositiveLeft,numOfNegativeLeft);
             tempEnt = tempEnt + (numOfPositiveRight+numOfNegativeRight)/numberOfLabels*calculateEntropy(numOfPositiveRight,numOfNegativeRight);
+            %Stores the lowest entropy to get the highest gain
             if(tempEnt < ent)
                 ent = tempEnt;
                 bestThresholdIndex(i) = j;
@@ -39,6 +46,8 @@ function [bestThresholdFeature,bestThresholdFeatureIndex] = choose_attribute(exa
             end
         end
     end
+    %returns the feature with the lowest ent
     [~,bestThresholdFeature] = min(bestThresholdGain);
+    %returns the index of the feature examples with lowest ent
     bestThresholdFeatureIndex = bestThresholdIndex(bestThresholdFeature);
 end
