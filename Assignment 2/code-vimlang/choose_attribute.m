@@ -1,4 +1,4 @@
-% Author Vimlan G
+% Author Vimlan Ganesan
 function [bestThresholdFeature,bestThresholdFeatureIndex] = choose_attribute(examples,labels)
     
     numberOfLabels = length(labels);
