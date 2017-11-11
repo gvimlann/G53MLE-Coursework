@@ -1,54 +1,55 @@
 % Author Vimlan Ganesan
-function [bestThresholdFeature,bestThreshold] = choose_attribute(examples,labels)
+function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,samples)
     
-    numberOfLabels = length(labels);
-    numberOfFeatures = size(examples,2);
+    totalSamples = length(samples);
+    totalFeatures = size(examples,2);
     
-    bestThresholdIndex = zeros(numberOfFeatures,1);
-    bestThresholdGain = zeros(numberOfFeatures,1);
+    sampleIndex = zeros(totalFeatures,1);
+    featureEntropy = zeros(totalFeatures,1);
     
-    for i=1:numberOfFeatures
+    for feature=1:totalFeatures
             ent = inf;
             %iterate through the examples of each features
-        for j=1:numberOfLabels
-            numOfPositiveRight = 0;
-            numOfPositiveLeft = 0;
-            numOfNegativeRight = 0;
-            numOfNegativeLeft = 0; 
-            center = examples(j,i);
+        for sample=1:totalSamples
+            positiveRight = 0;
+            positiveLeft = 0;
+            negativeRight = 0;
+            negativeLeft = 0; 
+            center = examples(sample,feature);
             %sets the center of the feature split, iterates each sample for
             %new center for each feature
-            for k=1:numberOfLabels
+            for tempsample=1:totalSamples
                 %if sample value of feature is smaller than center, assign
                 %to left side of the node else right
-                if(examples(k,i) < center)
-                    if(labels(k,1) == 1)
-                        numOfPositiveLeft = numOfPositiveLeft + 1;
+                if(examples(tempsample,feature) < center)
+                    if(samples(tempsample,1) == 1)
+                        positiveLeft = positiveLeft + 1;
                     else
-                        numOfNegativeLeft = numOfNegativeLeft + 1;
+                        negativeLeft = negativeLeft + 1;
                     end
                 else
-                    if(labels(k,1) == 1)
-                        numOfPositiveRight = numOfPositiveRight + 1;
+                    if(samples(tempsample,1) == 1)
+                        positiveRight = positiveRight + 1;
                     else
-                        numOfNegativeRight = numOfNegativeRight + 1;
+                        negativeRight = negativeRight + 1;
                     end
                 end
             end
             %Remainder function
-            tempEnt = (numOfPositiveLeft+numOfNegativeLeft)/numberOfLabels * calculateEntropy(numOfPositiveLeft,numOfNegativeLeft);
-            tempEnt = tempEnt + (numOfPositiveRight+numOfNegativeRight)/numberOfLabels*calculateEntropy(numOfPositiveRight,numOfNegativeRight);
+            tempEnt = (positiveLeft+negativeLeft)/totalSamples * calculateEntropy(positiveLeft,negativeLeft);
+            tempEnt = tempEnt + (positiveRight+negativeRight)/totalSamples*calculateEntropy(positiveRight,negativeRight);
             %Stores the lowest entropy to get the highest gain
             if(tempEnt < ent)
                 ent = tempEnt;
-                bestThresholdIndex(i) = j;
-                bestThresholdGain(i) = tempEnt;
+                sampleIndex(feature) = sample;
+                featureEntropy(feature) = tempEnt;
             end
         end
     end
-    %returns the feature with the lowest ent
-    [~,bestThresholdFeature] = min(bestThresholdGain);
-    %returns the index of the feature examples with lowest ent
-    bestThresholdFeatureIndex = bestThresholdIndex(bestThresholdFeature);
-    bestThreshold = examples(bestThresholdFeatureIndex,bestThresholdFeature);
+    %returns the feature index with the lowest ent
+    [~,indexLowestFeatureEnt] = min(featureEntropy);
+    %returns the index of the feature examples in the SAMPLE with lowest
+    %ent, finding the best threshold for the specific feature
+    bestThresholdSampleIndex = sampleIndex(indexLowestFeatureEnt);
+    bestThreshold = examples(bestThresholdSampleIndex,indexLowestFeatureEnt);
 end
