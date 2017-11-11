@@ -50,5 +50,4 @@ function [bestThresholdFeature,bestThreshold] = choose_attribute(examples,labels
     [~,bestThresholdFeature] = min(bestThresholdGain);
     %returns the index of the feature examples with lowest ent
     bestThresholdFeatureIndex = bestThresholdIndex(bestThresholdFeature);
-    bestThreshold = examples(bestThresholdFeatureIndex,bestThresholdFeature);
 end
