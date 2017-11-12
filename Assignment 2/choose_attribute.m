@@ -18,17 +18,17 @@ function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,sampl
             center = examples(sample,feature);
             %sets the center of the feature split, iterates each sample for
             %new center for each feature
-            for tempsample=1:totalSamples
+            for tempSample=1:totalSamples
                 %if sample value of feature is smaller than center, assign
                 %to left side of the node else right
-                if(examples(tempsample,feature) < center)
-                    if(samples(tempsample,1) == 1)
+                if(examples(tempSample,feature) < center)
+                    if(samples(tempSample,1) == 1)
                         positiveLeft = positiveLeft + 1;
                     else
                         negativeLeft = negativeLeft + 1;
                     end
                 else
-                    if(samples(tempsample,1) == 1)
+                    if(samples(tempSample,1) == 1)
                         positiveRight = positiveRight + 1;
                     else
                         negativeRight = negativeRight + 1;

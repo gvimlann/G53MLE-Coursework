@@ -1,6 +1,6 @@
 %Author Siokhan K
 
-function label = majorityValue(targets)
+function label = majority_value(targets)
 
     label = mode(targets);
     
