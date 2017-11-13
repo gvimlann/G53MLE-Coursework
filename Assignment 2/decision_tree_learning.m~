@@ -6,35 +6,39 @@ if all(~diff(labels))
     tree.op = [];
     tree.kids = [];
     tree.class = majority_value(labels);
+    return;
 %-----
 else
     [best_feature, best_threshold] = choose_attribute(features, labels);
-    if isempty(labels)
-        tree.op = [];
-        tree.kids = [];
-        tree.class = majority_value(labels);
-        examples1 = [];
-        examples2 = [];
-
-    else
-        af = labels < best_threshold;
-        for sampleIndex = 1:size(features,1)
-            if features(sampleIndex,best_feature) < best_threshold
-                examples1(count,:) = features(sampleIndex,:);
-                examples1 = [examples1 , 
-                count = count + 1;
-                
-            else
-                examples2(count1,:) = features(sampleIndex,:);
-                count1 = count1 + 1;
-            end
+    examples(1) = [];
+    examples(2) = [];
+    tree.op = best_feature;
+    tree.kids = [];
+    tree.class = [];
+    
+    for sampleIndex = 1:size(features,1)
+        if features(sampleIndex,best_feature) < best_threshold
+            examples(1) = [examples(1) , sampleIndex];
+        else
+            examples(2) = [examples(2) , sampleIndex];
         end
-        disp(size(examples2));
-        disp(size(examples1));
-        A = labels(af);
-        B = labels(~af);
-        tree.kids = [decision_tree_learning(best_feature, A), decision_tree_learning(best_feature, B)];
-        tree.op = best_feature;
-        tree.class = [];
+    end
+    
+    
+    targets(1) = labels(examples(1));
+    targets(2) = labels(examples(2));
+    examples(1) = features(examples(1),:);
+    examples(2) = features(examples(2),:);
+    if(isempty(examples(1))) && (isempty(examples(2)))
+    elseif
+    elseif
+    else
+        tree.kids = [decision_tree_learning(examples(1), targets(1)), decision_tree_learning(examples(2), targets(2))];
+    end
+    if(isempty(examples(1)))
+        tree.kids(1) = majority_values(targets(1));
+    end
+    if(isempty(examples(2)))
+        tree.kids(2) = majority_values(targets(2));
     end
 end

@@ -1,9 +1,13 @@
 % Author Vimlan Ganesan
 function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,samples)
     
+    if(isempty(examples))
+        return
+    end
+    
     totalSamples = length(samples);
     totalFeatures = size(examples,2);
-    
+    disp(size(examples));
     sampleIndex = zeros(totalFeatures,1);
     featureEntropy = zeros(totalFeatures,1);
     
@@ -39,6 +43,7 @@ function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,sampl
             tempEnt = (positiveLeft+negativeLeft)/totalSamples * calculateEntropy(positiveLeft,negativeLeft);
             tempEnt = tempEnt + (positiveRight+negativeRight)/totalSamples*calculateEntropy(positiveRight,negativeRight);
             %Stores the lowest entropy to get the highest gain
+            %Compares the entropy for each feature
             if(tempEnt < ent)
                 ent = tempEnt;
                 sampleIndex(feature) = sample;
