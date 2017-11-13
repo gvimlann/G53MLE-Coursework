@@ -9,10 +9,11 @@ if all(~diff(labels))
 %-----
 else
     [best_feature, best_threshold] = choose_attribute(features, labels);
-    if isempty(labels)
+    if isempty(features)
         tree.op = [];
         tree.kids = [];
-        tree.class = majority_value(labels);
+        af = labels < best_threshold;
+        tree.class = majority_value(af);
     else
         af = labels < best_threshold;
         labelA = labels(af);
