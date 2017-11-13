@@ -15,9 +15,14 @@ else
         tree.class = majority_value(labels);
     else
         af = labels < best_threshold;
-        A = labels(af);
-        B = labels(~af);
-        tree.kids = [decision_tree_learning(best_feature, A), decision_tree_learning(best_feature, B)];
+        labelA = labels(af);
+        labelB = labels(~af);
+        for tempFeature = 1:length(features(:, 1))
+            features((features(tempFeature, :) == best_feature), : ) = [];
+        end
+        featureA = features(af);
+        featureB = features(~af);
+        tree.kids = [decision_tree_learning(featureA, labelA), decision_tree_learning(featureB, labelB)];
         tree.op = best_feature;
         tree.class = [];
     end
