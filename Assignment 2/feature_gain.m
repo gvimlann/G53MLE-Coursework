@@ -14,7 +14,8 @@ function [gain,best_index] = feature_gain(data,labels,feature_index,feature_list
             end 
         end
         %Remainder
-        temp_remainder = size(left_side,1)/size(data,1)*calculateEntropy(left_side) + size(right_side,1)/size(data,1)*calculateEntropy(right_side);
+        %disp();
+        temp_remainder = (size(left_side,1)/size(data,1))*calculateEntropy(left_side) + (size(right_side,1)/size(data,1))*calculateEntropy(right_side);
         %Finds the feature index with the lowest remainder - to use the
         %value as threshold
         if temp_remainder < remainder

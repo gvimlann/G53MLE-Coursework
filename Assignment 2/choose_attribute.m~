@@ -6,6 +6,7 @@ function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,sampl
     end
     totalSamples = length(samples);
     totalFeatures = size(examples,2);
+    disp(size(examples));
     sampleIndex = zeros(totalFeatures,1);
     featureGain = zeros(totalFeatures,1);
     base_entropy = calculateEntropy(samples);
@@ -14,8 +15,10 @@ function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,sampl
             base_remainder = inf;
             %iterate through the examples of each features
         for sample=1:totalSamples
-            left = [];
-            right = [];
+            positiveRight = 0;
+            positiveLeft = 0;
+            negativeRight = 0;
+            negativeLeft = 0; 
             center = examples(sample,feature);
             %sets the center of the feature split, iterates each sample for
             %new center for each feature
@@ -23,25 +26,33 @@ function [indexLowestFeatureEnt,bestThreshold] = choose_attribute(examples,sampl
                 %if sample value of feature is smaller than center, assign
                 %to left side of the node else right
                 if(examples(tempSample,feature) < center)
-                    left = [left,samples(tempSample,1)];
+                    if(samples(tempSample,1) == 1)
+                        positiveLeft = positiveLeft + 1;
+                    else
+                        negativeLeft = negativeLeft + 1;
+                    end
                 else
-                    right = [right,samples(tempSample,1)];
+                    if(samples(tempSample,1) == 1)
+                        positiveRight = positiveRight + 1;
+                    else
+                        negativeRight = negativeRight + 1;
+                    end
                 end
             end
             %Remainder function
-            remainder = size(left,1)/totalSamples * calculateEntropy(left);
-            remainder = remainder + size(right,1)/totalSamples*calculateEntropy(right);
+            remainder = (positiveLeft+negativeLeft)/totalSamples * calculateEntropy(positiveLeft,negativeLeft);
+            remainder = remainder + (positiveRight+negativeRight)/totalSamples*calculateEntropy(positiveRight,negativeRight);
             %Stores the lowest entropy to get the highest gain
             %Compares the entropy for each feature
             if(remainder < base_remainder)
                 base_remainder = remainder;
                 sampleIndex(feature) = sample;
-                featureGain(feature) = base_entropy - remainder;
+                featureGain(feature) = base_remainder - remainder;
             end
         end
     end
     %returns the feature index with the lowest ent
-    [~,indexLowestFeatureEnt] = max(featureGain);
+    [~,indexLowestFeatureEnt] = min(featureGain);
     %returns the index of the feature examples in the SAMPLE with lowest
     %ent, finding the best threshold for the specific feature
     bestThresholdSampleIndex = sampleIndex(indexLowestFeatureEnt);
