@@ -14,8 +14,9 @@ else
         tree.kids = [];
         tree.class = majority_value(labels);
     else
-        A = labels(FIND(labels<best_threshold));
-        B = labels(FIND(labels>=best_threshold));
+        af = labels < best_threshold;
+        A = labels(af);
+        B = labels(~af);
         tree.kids = [decision_tree_learning(best_feature, A), decision_tree_learning(best_feature, B)];
         tree.op = best_feature;
         tree.class = [];
