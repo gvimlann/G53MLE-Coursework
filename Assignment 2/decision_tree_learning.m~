@@ -9,28 +9,31 @@ if all(~diff(labels))
 %-----
 else
     [best_feature, best_threshold] = choose_attribute(features, labels);
-    examples1 = [];
-    examples2 = [];
-    if all(labels == labels(1))
+    if isempty(labels)
         tree.op = [];
         tree.kids = [];
         tree.class = majority_value(labels);
+        examples1 = [];
+        examples2 = [];
 
     else
+        af = labels < best_threshold;
         for sampleIndex = 1:size(features,1)
             if features(sampleIndex,best_feature) < best_threshold
-                examples1 = [examples1 , sampleIndex];
+                examples1(count,:) = features(sampleIndex,:);
+                examples1 = [examples1 , 
+                count = count + 1;
                 
             else
-                examples2 = [examples2 , sampleIndex];
+                examples2(count1,:) = features(sampleIndex,:);
+                count1 = count1 + 1;
             end
         end
-        targets1 = labels(examples1);
-        targets2 = labels(examples2);
-        examples1 = features(examples1,:);
-        examples2 = features(examples2,:);
+        disp(size(examples2));
         disp(size(examples1));
-        tree.kids = [decision_tree_learning(examples1, targets1), decision_tree_learning(examples2, targets2)];
+        A = labels(af);
+        B = labels(~af);
+        tree.kids = [decision_tree_learning(best_feature, A), decision_tree_learning(best_feature, B)];
         tree.op = best_feature;
         tree.class = [];
     end
