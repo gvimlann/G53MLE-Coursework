@@ -8,10 +8,15 @@ function [gain,best_index] = feature_gain(data,labels,feature_index,feature_list
         %split them to left and right node based on the feat value
         for temp_feat = 1 : size(feature_list)
             if(data(temp_feat,feature_index) < center)
-                left_side = [left_side,labels(temp_feat)];
+                if(data(temp_feat,feature_index) == 1)
+                        positiveLeft = positiveLeft + 1;
+                else
+                        negativeLeft = negativeLeft + 1;
+                    end
             else
                 right_side = [right_side,labels(temp_feat)];
-            end 
+            end
+            
         end
         %Remainder
         temp_remainder = size(left_side,1)/size(data,1)*calculateEntropy(left_side) + size(right_side,1)/size(data,1)*calculateEntropy(right_side);
