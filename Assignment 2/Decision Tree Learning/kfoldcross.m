@@ -5,7 +5,7 @@
 % randomness of indices
 function kindices = kfoldcross(data, k)
     if ~isscalar(data)
-        data = size(data, 2);
+        data = length(data);
     end
     if ~isscalar(k)
         disp('K-value must be scalar');
