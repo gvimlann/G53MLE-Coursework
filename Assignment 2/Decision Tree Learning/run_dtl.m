@@ -16,7 +16,7 @@ for i = 1:kfolds
     train_ind = ~test_ind;
     trained_tree = decision_tree_learning(X(train_ind,:), Y(train_ind,:));
     DrawDecisionTree(trained_tree, ['Tree_' num2str(i)]);
-    test_output = evaluate_tree(trained_tree, X(test_ind))
+    test_output = evaluate_tree(trained_tree, X(test_ind,:));
     [misclassified,cm,~,rates] = confusion(Y(test_ind), test_output);
     sum_confusion = sum_confusion + cm;
 end
