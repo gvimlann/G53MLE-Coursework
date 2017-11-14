@@ -20,8 +20,9 @@ for i = 1:kfolds
     DrawDecisionTree(trained_tree, ['Tree_' num2str(i)]);
     % test
     test_output = evaluate_tree(trained_tree, X(test_ind,:));
-    [misclassified,cm,~,rates] = confusion(Y(test_ind)', test_output');
+    [misclassified,cm,~,rates] = confusion(Y(test_ind)', test_output);
     sum_confusion = sum_confusion + cm;
 end
+
 % accuracy, recall, precision, f1
 [acc,rec,pre,f1] = confusion_rates(sum_confusion);
