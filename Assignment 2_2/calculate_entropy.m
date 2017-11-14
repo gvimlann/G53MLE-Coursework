@@ -16,6 +16,7 @@ function entropy = calculate_entropy(labels)
     if(pn_p) == 0
         pn_eq = 0;
     end
+    
     %Entropy
     entropy = pp_eq + pn_eq;
 end
