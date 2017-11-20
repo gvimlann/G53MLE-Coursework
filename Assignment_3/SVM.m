@@ -1,6 +1,24 @@
 function model = SVM(X, Y, classification_type, varargin)
+    % X Features
+    % Y Targets
+    % CLASSIFICATION_TYPE Kernal function to run, valid inputs are:
+    %   linear_classification, linear_regression
+    %   polynomial_classification, polynomial_regression
+    %   rbg_classification, rbf_regression
+    % ADDITIONAL_PARAMS Kernal hyperparameters, valid inputs are:
+    %   KernalScale, PolynomialOrder, Epsilon
+    %
+    % Valid pairings of CLASSIFICATION_TYPE and ADDITIONAL_PARAMS are:
+    %   linear_classification => NONE
+    %   polynomial_classification => PolynomialOrder
+    %   rbf_classification => KernalScale
+    %   *_regression => **PARAM + Epsilon
+    %   * any CLASSIFICATION_TYPE
+    %   ** Valid pairings of CLASSIFICATION_TYPE => ADDITIONAL_PARAM
+    
     p = inputParser;
     
+    % use default values from matlab
     defaultKernalScale = 1;
     defaultPolynomialOrder = 3;
     defaultEpsilon = iqr(Y) / 13.49;
@@ -8,6 +26,7 @@ function model = SVM(X, Y, classification_type, varargin)
     addParameter(p, 'KernelScale', defaultKernalScale, @isnumeric);
     addParameter(p, 'PolynomialOrder', defaultPolynomialOrder, @isnumeric);
     addParameter(p, 'Epsilon', defaultEpsilon, @isnumeric);
+    
     parse(p, varargin{:});
     
     if strcmpi(classification_type, 'linear_classification')
