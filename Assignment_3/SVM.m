@@ -1,10 +1,12 @@
 function model = SVM(X, Y, classification_type, varargin)
     % X Features
     % Y Targets
+    %
     % CLASSIFICATION_TYPE Kernal function to run, valid inputs are:
     %   linear_classification, linear_regression
     %   polynomial_classification, polynomial_regression
     %   rbg_classification, rbf_regression
+    %
     % ADDITIONAL_PARAMS Kernal hyperparameters, valid inputs are:
     %   KernalScale, PolynomialOrder, Epsilon
     %
@@ -18,15 +20,17 @@ function model = SVM(X, Y, classification_type, varargin)
     
     p = inputParser;
     
-    % use default values from matlab
+    % Default values for SVM
     defaultKernalScale = 1;
     defaultPolynomialOrder = 3;
     defaultEpsilon = iqr(Y) / 13.49;
     
+    % Set up inputParser 'p'
     addParameter(p, 'KernelScale', defaultKernalScale, @isnumeric);
     addParameter(p, 'PolynomialOrder', defaultPolynomialOrder, @isnumeric);
     addParameter(p, 'Epsilon', defaultEpsilon, @isnumeric);
     
+    % Override values in inputParser from argument
     parse(p, varargin{:});
     
     if strcmpi(classification_type, 'linear_classification')
