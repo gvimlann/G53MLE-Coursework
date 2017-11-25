@@ -65,6 +65,14 @@ linear_val = {};
 poly_val = {};
 rbg_val = {};
 
+% To keep track of confusion matrices
+confusion_linear = zeros([2 2 INNER_kFOLD]);
+confusion_poly = zeros([2 2 INNER_kFOLD]);
+confusion_rbg = zeros([2 2 INNER_kFOLD]);
+sum_confusion_linear = zeros([2 2]);
+sum_confusion_poly = zeros([2 2]);
+sum_confusion_rbg = zeros([2 2]);
+
 % cross-validate
 for i=1:OUTER_kFOLD
     % Set up model in this loop
@@ -77,24 +85,44 @@ for i=1:OUTER_kFOLD
     for j=1:INNER_kFOLD
         % Test out model in this loop
         % data segmentation
-        k_test_indices = (train_indices == i);
+        k_test_indices = (train_indices == j);
         k_train_indices = ~k_test_indices;
 
         % Train SVMs
-        svm_linear = SVM(X(:, k_train_indices), Y(:, k_train_indices), linear_Kernel, linear_input.Results);
-        svm_poly = SVM(X(:, k_train_indices), Y(:, k_train_indices), poly_Kernel, poly_input.Results);
-        svm_rbg = SVM(X(:, k_train_indices), Y(:, k_train_indices), rbg_Kernel, rbg_input.Results);
+        svm_linear = SVM(X(k_train_indices, :), Y(k_train_indices, :), linear_Kernel, linear_input.Results);
+        svm_poly = SVM(X(k_train_indices, :), Y(k_train_indices, :), poly_Kernel, poly_input.Results);
+        svm_rbg = SVM(X(k_train_indices, :), Y(k_train_indices, :), rbg_Kernel, rbg_input.Results);
 
         % Test the SVMs
-        output_linear = predict(X_train(:, k_test_indices));
-        output_poly = predict(X_train(:, k_test_indices));
-        output_rbg = predict(X_train(:, k_test_indices));
+        output_linear = predict(svm_linear, X(k_test_indices, :));
+        output_poly = predict(svm_poly, X(k_test_indices, :));
+        output_rbg = predict(svm_rbg, X(k_test_indices, :));
 
-        % Calculate accuracy
-        
+        if IS_REGRESSION
+            % (Regression) 
 
+        else
+            % (Classification) Accuracy calculation using confusion matrix - sum up all confusion matrix during k fold
+            [~, confusion_linear(:, :, j), ~, ~] = confusion(Y(k_test_indices, :)', output_linear');
+            sum_confusion_linear = sum_confusion_linear + confusion_linear(:, :, j);
+
+            [~,confusion_poly(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_poly');
+            sum_confusion_poly = sum_confusion_poly + confusion_poly(:, :, j);
+
+            [~,confusion_rbg(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_rbg');
+            sum_confusion_rbg = sum_confusion_rbg + confusion_rbg(:, :, j);
+
+        end
     end
 
+    % Compute the required performance metrics
+    [acc_linear,rec_linear,pre_linear,f1_linear] = confusion_rates(sum_confusion_linear);
+    [acc_poly,rec_poly,pre_poly,f1_poly] = confusion_rates(sum_confusion_poly);
+    [acc_rbg,rec_rbg,pre_rbg,f1_rbg] = confusion_rates(sum_confusion_rbg);
+
+    disp(acc_linear);
+    disp(acc_poly);
+    disp(acc_rbg);
     % Random Search algorithm
 
 end
