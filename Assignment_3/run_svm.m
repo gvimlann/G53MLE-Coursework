@@ -73,6 +73,11 @@ sum_confusion_linear = zeros([2 2]);
 sum_confusion_poly = zeros([2 2]);
 sum_confusion_rbg = zeros([2 2]);
 
+% To keep track of missclasification
+missclassification_linear = zeros(INNER_kFOLD);
+missclassification_poly = zeros(INNER_kFOLD);
+missclassification_rbg = zeros(INNER_kFOLD);
+
 % cross-validate
 for i=1:OUTER_kFOLD
     % Set up model in this loop
@@ -111,13 +116,13 @@ for i=1:OUTER_kFOLD
 
         else
             % (Classification) Accuracy calculation using confusion matrix - sum up all confusion matrix during k fold
-            [~, confusion_linear(:, :, j), ~, ~] = confusion(Y(k_test_indices, :)', output_linear');
+            [missclassification_linear(j), confusion_linear(:, :, j), ~, ~] = confusion(Y(k_test_indices, :)', output_linear');
             sum_confusion_linear = sum_confusion_linear + confusion_linear(:, :, j);
 
-            [~,confusion_poly(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_poly');
+            [missclassification_poly(j),confusion_poly(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_poly');
             sum_confusion_poly = sum_confusion_poly + confusion_poly(:, :, j);
 
-            [~,confusion_rbg(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_rbg');
+            [missclassification_rbg(j),confusion_rbg(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_rbg');
             sum_confusion_rbg = sum_confusion_rbg + confusion_rbg(:, :, j);
 
         end
@@ -144,5 +149,6 @@ for i=1:OUTER_kFOLD
     end
 
     % Random Search OR grid search algorithm here
+
 
 end
