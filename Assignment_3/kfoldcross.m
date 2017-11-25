@@ -3,7 +3,7 @@
 % fold
 % Vector segmentation is done using random permutations to ensure
 % randomness of indices
-function kindices = kfoldcross(data, k)
+function kindices = kfoldcross(data, k, use_randperm)
     if ~isscalar(data)
         data = size(data, 2);
     end
@@ -23,9 +23,14 @@ function kindices = kfoldcross(data, k)
     elseif length(idx) > data
         idx = idx(1:data);
     end
-        
-    for i = 1:length(kindices)
-        kindices(perm_idx(i)) = idx(i);
+    
+    if use_randperm
+        for i = 1:length(kindices)
+            kindices(perm_idx(i)) = idx(i);
+        end
+    else
+        kindices = idx;
     end
+    
 end
 

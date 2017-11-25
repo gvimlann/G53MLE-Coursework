@@ -113,7 +113,7 @@ num_model = size(output_allmodel, 2);
 compare = 2;
 pointer = 1;
 ticker = 1;
-ttest_store = cell(4, 10);
+ttest_store = cell(4, (num_model*(num_model-1)/2));
 while pointer < num_model-1
     if compare == num_model
         pointer = pointer + 1;
