@@ -3,8 +3,8 @@
 % Random search is performed for hyperparameter optimisation
 
 % constants
-IS_REGRESSION = 1;
-OUTER_kFOLD = 10;
+IS_REGRESSION = 0;
+OUTER_kFOLD = 5;
 INNER_kFOLD = 10;
 
 % load and transform data
@@ -74,9 +74,14 @@ sum_confusion_poly = zeros([2 2]);
 sum_confusion_rbg = zeros([2 2]);
 
 % To keep track of missclasification
-missclassification_linear = zeros(INNER_kFOLD);
-missclassification_poly = zeros(INNER_kFOLD);
-missclassification_rbg = zeros(INNER_kFOLD);
+missclassification_linear = zeros([INNER_kFOLD 1]);
+missclassification_poly = zeros([INNER_kFOLD 1]);
+missclassification_rbg = zeros([INNER_kFOLD 1]);
+
+% to keep track of the best SVMs
+svm_linear_best = {};
+svm_poly_best = {};
+svm_rbg_best = {};
 
 % cross-validate
 for i=1:OUTER_kFOLD
@@ -115,7 +120,9 @@ for i=1:OUTER_kFOLD
             mean_square_err_rbg(j) = immse(regression_output_rbg(k_test_indices, :, j), Y(k_test_indices, :));
 
         else
-            % (Classification) Accuracy calculation using confusion matrix - sum up all confusion matrix during k fold
+            % (Classification) Accuracy calculation using confusion matrix
+            % sum up all confusion matrix during k fold
+            % keep track of misclasifcation as well
             [missclassification_linear(j), confusion_linear(:, :, j), ~, ~] = confusion(Y(k_test_indices, :)', output_linear');
             sum_confusion_linear = sum_confusion_linear + confusion_linear(:, :, j);
 
@@ -134,21 +141,73 @@ for i=1:OUTER_kFOLD
         average_MSE_poly = mean(mean_square_err_poly);
         average_MSE_rbg = mean(mean_square_err_rbg);
 
-        disp(average_MSE_linear);
-        disp(average_MSE_poly);
-        disp(average_MSE_rbg);
+        %disp(average_MSE_linear);
+        %disp(average_MSE_poly);
+        %disp(average_MSE_rbg);
+
+        % to keep track of the best accuracy/score
+        if i == 1
+            score_linear_best = average_MSE_linear;
+            score_poly_best = average_MSE_poly;
+            score_rbg_best = average_MSE_rbg; 
+        else 
+            % Check if it is a better model
+            if average_MSE_linear < score_linear_best
+                score_linear_best = average_MSE_linear;
+                svm_linear_best = svm_linear;
+            end
+            if average_MSE_poly < score_poly_best
+                score_poly_best = average_MSE_poly;
+                svm_poly_best = svm_poly;
+            end
+            if average_MSE_rbg < score_rbg_best
+                score_rbg_best = average_MSE_rbg;
+                svm_rbg_best = svm_rbg;
+            end
+        end
     else
         % Compute the required performance metrics for Classification
         [acc_linear,rec_linear,pre_linear,f1_linear] = confusion_rates(sum_confusion_linear);
         [acc_poly,rec_poly,pre_poly,f1_poly] = confusion_rates(sum_confusion_poly);
         [acc_rbg,rec_rbg,pre_rbg,f1_rbg] = confusion_rates(sum_confusion_rbg);
 
-        disp(acc_linear);
-        disp(acc_poly);
-        disp(acc_rbg);
-    end
+        %disp(acc_linear);
+        %disp(acc_poly);
+        %disp(acc_rbg);
 
-    % Random Search OR grid search algorithm here
+        % average misclassification error
+        average_MCE_linear = mean(missclassification_linear);
+        average_MCE_poly = mean(missclassification_poly);
+        average_MCE_rbg = mean(missclassification_rbg);
 
+        %disp(average_MCE_linear);
+        %disp(average_MCE_poly);
+        %disp(average_MCE_rbg);
+
+        % to keep track of the best accuracy/score
+        if i == 1
+            score_linear_best = average_MCE_linear;
+            score_poly_best = average_MCE_poly;
+            score_rbg_best = average_MCE_rbg; 
+        else 
+            % Check if it is a better model
+            if average_MCE_linear < score_linear_best
+                score_linear_best = average_MCE_linear;
+                svm_linear_best = svm_linear;
+            end
+            if average_MCE_poly < score_poly_best
+                score_poly_best = average_MCE_poly;
+                svm_poly_best = svm_poly;
+            end
+            if average_MCE_rbg < score_rbg_best
+                score_rbg_best = average_MCE_rbg;
+                svm_rbg_best = svm_rbg;
+            end
+        end
+
+    end    
+
+    % Random Search algorithm for the next SVM configuration
+    
 
 end
