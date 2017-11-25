@@ -19,6 +19,9 @@ end
 spoints = size(points);
 X = reshape(points, [spoints(1)*spoints(2) spoints(3)])';
 
+% Split data into k folds
+train_indices = kfoldcross(X, INNER_kFOLD, 0);
+
 % Default values for SVM
 defaultKernalScale = 1;
 defaultPolynomialOrder = 3;
@@ -57,21 +60,41 @@ else
     addParameter(poly_input, 'PolynomialOrder', defaultPolynomialOrder, @isnumeric);
 end
 
-parse(linear_input);
-parse(poly_input);
-parse(rbg_input);
+% To keep track and modify additional vars
+linear_val = {};
+poly_val = {};
+rbg_val = {};
 
 % cross-validate
 for i=1:OUTER_kFOLD
     % Set up model in this loop
-    svm_linear = SVM(X, Y, linear_Kernel, linear_input.Results);
-    svm_poly = SVM(X, Y, poly_Kernel, poly_input.Results);
-    svm_rbg = SVM(X, Y, rbg_Kernel, rbg_input.Results);
+
+    % Parse the additional variables
+    parse(linear_input, linear_val{:});
+    parse(poly_input, poly_val{:});
+    parse(rbg_input, rbg_val{:});
 
     for j=1:INNER_kFOLD
         % Test out model in this loop
+        % data segmentation
+        k_test_indices = (train_indices == i);
+        k_train_indices = ~k_test_indices;
+
+        % Train SVMs
+        svm_linear = SVM(X(:, k_train_indices), Y(:, k_train_indices), linear_Kernel, linear_input.Results);
+        svm_poly = SVM(X(:, k_train_indices), Y(:, k_train_indices), poly_Kernel, poly_input.Results);
+        svm_rbg = SVM(X(:, k_train_indices), Y(:, k_train_indices), rbg_Kernel, rbg_input.Results);
+
+        % Test the SVMs
+        output_linear = predict(X_train(:, k_test_indices));
+        output_poly = predict(X_train(:, k_test_indices));
+        output_rbg = predict(X_train(:, k_test_indices));
+
+        % Calculate accuracy
         
+
     end
 
     % Random Search algorithm
+
 end
