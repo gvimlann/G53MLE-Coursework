@@ -3,7 +3,7 @@
 % Random search is performed for hyperparameter optimisation
 
 % constants
-IS_REGRESSION = 0;
+IS_REGRESSION = 1;
 OUTER_kFOLD = 10;
 INNER_kFOLD = 10;
 
@@ -35,7 +35,7 @@ if IS_REGRESSION
     % Vars for regression
     linear_Kernel = 'linear_regression';
     poly_Kernel = 'polynomial_regression';
-    rbg_Kernel = 'rbg_regression';
+    rbg_Kernel = 'rbf_regression';
 
     % Additional vars for rbg
     addParameter(rbg_input, 'KernelScale', defaultKernalScale, @isnumeric);
@@ -99,7 +99,15 @@ for i=1:OUTER_kFOLD
         output_rbg = predict(svm_rbg, X(k_test_indices, :));
 
         if IS_REGRESSION
-            % (Regression) 
+            % (Regression) Accuracy calculation using Mean Squared error
+            regression_output_linear(k_test_indices, :, j) = output_linear;
+            regression_output_poly(k_test_indices, :, j) = output_poly;
+            regression_output_rbg(k_test_indices, :, j) = output_rbg;
+            
+            % Compute the mean squared error
+            mean_square_err_linear(j) = immse(regression_output_linear(k_test_indices, :, j), Y(k_test_indices, :));
+            mean_square_err_poly(j) = immse(regression_output_poly(k_test_indices, :, j), Y(k_test_indices, :));
+            mean_square_err_rbg(j) = immse(regression_output_rbg(k_test_indices, :, j), Y(k_test_indices, :));
 
         else
             % (Classification) Accuracy calculation using confusion matrix - sum up all confusion matrix during k fold
@@ -115,14 +123,26 @@ for i=1:OUTER_kFOLD
         end
     end
 
-    % Compute the required performance metrics
-    [acc_linear,rec_linear,pre_linear,f1_linear] = confusion_rates(sum_confusion_linear);
-    [acc_poly,rec_poly,pre_poly,f1_poly] = confusion_rates(sum_confusion_poly);
-    [acc_rbg,rec_rbg,pre_rbg,f1_rbg] = confusion_rates(sum_confusion_rbg);
+    if IS_REGRESSION
+        % Calculate the average mean squared error
+        average_MSE_linear = mean(mean_square_err_linear);
+        average_MSE_poly = mean(mean_square_err_poly);
+        average_MSE_rbg = mean(mean_square_err_rbg);
 
-    disp(acc_linear);
-    disp(acc_poly);
-    disp(acc_rbg);
-    % Random Search algorithm
+        disp(average_MSE_linear);
+        disp(average_MSE_poly);
+        disp(average_MSE_rbg);
+    else
+        % Compute the required performance metrics for Classification
+        [acc_linear,rec_linear,pre_linear,f1_linear] = confusion_rates(sum_confusion_linear);
+        [acc_poly,rec_poly,pre_poly,f1_poly] = confusion_rates(sum_confusion_poly);
+        [acc_rbg,rec_rbg,pre_rbg,f1_rbg] = confusion_rates(sum_confusion_rbg);
+
+        disp(acc_linear);
+        disp(acc_poly);
+        disp(acc_rbg);
+    end
+
+    % Random Search OR grid search algorithm here
 
 end
