@@ -3,9 +3,25 @@
 % Random search is performed for hyperparameter optimisation
 
 % constants
-IS_REGRESSION = 1;
+IS_REGRESSION = 0;
 OUTER_kFOLD = 10;
 INNER_kFOLD = 10;
+
+% Min Constants
+MIN_EPSILON = 0.1;
+MIN_POLY = 3;
+MIN_KS = 1;
+
+% Max Constants
+MAX_EPSILON = 2;
+MAX_POLY = 32;
+MAX_KS = 32;
+
+SEED = 1337;
+% Initialise random number generator with seed
+rng(SEED);
+
+% OLD CONSTANTS
 EPSILON_DELTA = 0.1;
 POLY_DELTA = 4;
 KS_DELTA = 2;
@@ -218,46 +234,42 @@ for i=1:OUTER_kFOLD
     disp(['best poly: ' string(score_poly_best)]);
     disp(['best rbg: ' string(score_rbg_best)]);
 
-    % Random Search algorithm for the next SVM configuration
+    % Random Search algorithm for the next SVM configuration    
     if IS_REGRESSION
         % Randomise/Tweak Epsilon
-        epsilon = linear_input.Results.Epsilon - EPSILON_DELTA;
-        if epsilon <= 0
-            epsilon = 0.1;
-        end
+        %epsilon = linear_input.Results.Epsilon - EPSILON_DELTA;
+        epsilon = MIN_EPSILON + rand()*(MAX_EPSILON-MIN_EPSILON);
 
         % Set up new linear SVM arguments       
         linear_val = {'Epsilon', epsilon};
 
         % Randomise/Tweak polynomial order
-        polynomial_order = poly_input.Results.PolynomialOrder - POLY_DELTA;
-        if polynomial_order <= 3
-            polynomial_order = 3;
-        end
+        %polynomial_order = poly_input.Results.PolynomialOrder - POLY_DELTA;
+        polynomial_order = MIN_POLY + rand()*(MAX_POLY-MIN_POLY);
 
         % set up new polynomial SVM configuration
-        poly_val = {'Epsilon', epsilon, 'PolynomialOrder', polynomial_order};
+        poly_val = {'Epsilon', epsilon, 'PolynomialOrder', ceil(polynomial_order)};
 
         % Randomise/Tweak rbg Kernel Scale
-        kernel_scale = KS_DELTA + rbg_input.Results.KernelScale;
+        %kernel_scale = KS_DELTA + rbg_input.Results.KernelScale;
+        kernel_scale = MIN_KS + rand()*(MAX_KS-MIN_KS);
 
         % set up new rbg SVM configuration
-        rbg_val = {'Epsilon', epsilon, 'KernelScale', kernel_scale};
+        rbg_val = {'Epsilon', epsilon, 'KernelScale', ceil(kernel_scale)};
     else        
         % Randomise/Tweak polynomial order
-        polynomial_order = poly_input.Results.PolynomialOrder - POLY_DELTA;
-        if polynomial_order <= 3
-            polynomial_order = 3;
-        end
+        %polynomial_order = poly_input.Results.PolynomialOrder - POLY_DELTA;
+        polynomial_order = MIN_POLY + rand()*(MAX_POLY-MIN_POLY);
 
         % set up new polynomia SVM configuration
-        poly_val = {'PolynomialOrder', polynomial_order};
+        poly_val = {'PolynomialOrder', ceil(polynomial_order)};
 
         % Randomise/Tweak rbg Kernel Scale
-        kernel_scale = KS_DELTA + rbg_input.Results.KernelScale;
+        %kernel_scale = KS_DELTA + rbg_input.Results.KernelScale;
+        kernel_scale = MIN_KS + rand()*(MAX_KS-MIN_KS);
         
         % set up new rbg SVM configuration
-        rbg_val = {'KernelScale', kernel_scale};
+        rbg_val = {'KernelScale', ceil(kernel_scale)};
     end
 
 end
