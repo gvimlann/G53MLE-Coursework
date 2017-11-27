@@ -1,8 +1,6 @@
 % @author Boey
 % Segments data into k folds by returning indices carrying value for each
 % fold
-% Vector segmentation is done using random permutations to ensure
-% randomness of indices
 function kindices = kfoldcross(data, k, use_randperm)
     if ~isscalar(data)
         data = size(data, 2);

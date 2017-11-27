@@ -3,7 +3,7 @@
 % Random search is performed for hyperparameter optimisation
 
 % constants
-IS_REGRESSION = 0;
+IS_REGRESSION = 1;
 OUTER_kFOLD = 10;
 INNER_kFOLD = 10;
 
@@ -43,8 +43,8 @@ train_indices = kfoldcross(X, INNER_kFOLD, 0);
 
 % Default values for SVM
 defaultKernalScale = 1;
-defaultPolynomialOrder = 50;
-defaultEpsilon = 2;
+defaultPolynomialOrder = 3;
+defaultEpsilon = 0.07;
 
 % Additional variables for polynomial and rbg
 linear_input = inputParser;
@@ -173,6 +173,9 @@ for i=1:OUTER_kFOLD
             score_linear_best = average_MSE_linear;
             score_poly_best = average_MSE_poly;
             score_rbg_best = average_MSE_rbg; 
+            svm_linear_best = svm_linear;
+            svm_poly_best = svm_poly;
+            svm_rbg_best = svm_rbg;
         else 
             % Check if it is a better model
             if average_MSE_linear < score_linear_best
@@ -211,7 +214,10 @@ for i=1:OUTER_kFOLD
         if i == 1
             score_linear_best = average_MCE_linear;
             score_poly_best = average_MCE_poly;
-            score_rbg_best = average_MCE_rbg; 
+            score_rbg_best = average_MCE_rbg;
+            svm_linear_best = svm_linear;
+            svm_poly_best = svm_poly;
+            svm_rbg_best = svm_rbg;
         else 
             % Check if it is a better model
             if average_MCE_linear < score_linear_best
