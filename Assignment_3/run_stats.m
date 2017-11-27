@@ -1,6 +1,6 @@
 % constants
-is_regression = 1;
-kfolds = 10;
+is_regression = 0;
+kfolds = 5;
 CANN = 1;
 CSVML = 2;
 CSVMP = 3;
@@ -90,7 +90,6 @@ ann.trainParam.goal = 0;
 % svml = Linear SVM
 % svmp = Polynomial SVM
 % svmg = RBF/Gaussian SVM
-% output_allmodel = zeros([length(Y) 1 6 kfolds]);
 if is_regression
     STORE_TRUE_Y = 5;
 else
@@ -100,6 +99,7 @@ end
 disp('Start cv')
 
 for li = 1:kfolds
+    disp(num2str(li));
     % data segmentation
     k_test_indices = (kindices == li);
     k_train_indices = ~k_test_indices;
@@ -112,14 +112,21 @@ for li = 1:kfolds
     
     % train all model
     [ann,tr] = train(ann, X_ann(:, k_train_indices), Y_ann(:, k_train_indices));
+    disp('ANN done')
     if is_regression
         svml = SVM(X(k_train_indices, :), Y(k_train_indices, :), 'linear_regression', 'Epsilon', Epsilon_lin);
+        disp('SVML done')
         svmp = SVM(X(k_train_indices, :), Y(k_train_indices, :), 'polynomial_regression', 'PolynomialOrder', PolyOrder, 'Epsilon', Epsilon_poly);
+        disp('SVMP done')
         svmg = SVM(X(k_train_indices, :), Y(k_train_indices, :), 'rbf_regression', 'KernelScale', KernScale, 'Epsilon', Epsilon_g);
+        disp('SVMG done')
     else
         svml = SVM(X(k_train_indices, :), Y(k_train_indices, :), 'linear_classification');
+        disp('SVML done')
         svmp = SVM(X(k_train_indices, :), Y(k_train_indices, :), 'polynomial_classification', 'PolynomialOrder', PolyOrder);
+        disp('SVMP done')
         svmg = SVM(X(k_train_indices, :), Y(k_train_indices, :), 'rbf_classification', 'KernelScale', KernScale);
+        disp('SVMG done')
         dt = decision_tree_learning(X(k_train_indices, :), Y(k_train_indices, :));
         output_allmodel(:, :, CDT, li) = evaluate_tree(dt, X(k_test_indices, :));
     end
