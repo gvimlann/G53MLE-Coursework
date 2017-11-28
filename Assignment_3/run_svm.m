@@ -37,11 +37,6 @@ X = reshape(points, [spoints(1)*spoints(2) spoints(3)])';
 % Split data into k folds
 train_indices = kfoldcross(X, INNER_kFOLD, 0);
 
-% Default values for SVM
-defaultKernalScale = 1;
-defaultPolynomialOrder = 3;
-defaultEpsilon = 0.1;
-
 % Variables to interface with SVM.m
 if IS_REGRESSION
     % Vars for regression
@@ -72,11 +67,6 @@ sum_confusion_rbg = zeros([2 2]);
 missclassification_linear = zeros([INNER_kFOLD 1]);
 missclassification_poly = zeros([INNER_kFOLD 1]);
 missclassification_rbg = zeros([INNER_kFOLD 1]);
-
-% to keep track of the best SVMs
-svm_linear_best = {};
-svm_poly_best = {};
-svm_rbg_best = {};
 
 % cross-validate
 for i=1:OUTER_kFOLD
