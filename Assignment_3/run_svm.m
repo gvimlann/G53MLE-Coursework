@@ -1,11 +1,12 @@
-% This is the MAIN script that generates THREE SVMs via inner-crossfold validation.
+% This is the MAIN script that generates THREE optimal SVM hyperparameters
+% for 3 kernels {linear, polynomial, rbf} via inner-crossfold validation.
 % 
 % Random search is performed for hyperparameter optimisation
 
 % constants
-IS_REGRESSION = 1;
-OUTER_kFOLD = 10;
-INNER_kFOLD = 10;
+IS_REGRESSION = 0;
+OUTER_kFOLD = 3;
+INNER_kFOLD = 5;
 
 % Min Constants
 MIN_EPSILON = 0.1;
@@ -20,11 +21,6 @@ MAX_KS = 32;
 SEED = 1337;
 % Initialise random number generator with seed
 rng(SEED);
-
-% OLD CONSTANTS
-EPSILON_DELTA = 0.1;
-POLY_DELTA = 4;
-KS_DELTA = 2;
 
 % load and transform data
 load('facialPoints.mat');
@@ -44,39 +40,19 @@ train_indices = kfoldcross(X, INNER_kFOLD, 0);
 % Default values for SVM
 defaultKernalScale = 1;
 defaultPolynomialOrder = 3;
-defaultEpsilon = 0.07;
+defaultEpsilon = 0.1;
 
-% Additional variables for polynomial and rbg
-linear_input = inputParser;
-poly_input = inputParser;
-rbg_input = inputParser;
+% Variables to interface with SVM.m
 if IS_REGRESSION
     % Vars for regression
     linear_Kernel = 'linear_regression';
     poly_Kernel = 'polynomial_regression';
     rbg_Kernel = 'rbf_regression';
-
-    % Additional vars for rbg
-    addParameter(rbg_input, 'KernelScale', defaultKernalScale, @isnumeric);
-    addParameter(rbg_input, 'Epsilon', defaultEpsilon, @isnumeric);
-
-    % Additional vars for polynomial
-    addParameter(poly_input, 'PolynomialOrder', defaultPolynomialOrder, @isnumeric);
-    addParameter(poly_input, 'Epsilon', defaultEpsilon, @isnumeric);
-
-    % Additional vars for linear
-    addParameter(linear_input, 'Epsilon', defaultEpsilon, @isnumeric);
 else
     % Vars for binary
     linear_Kernel = 'linear_classification';
     poly_Kernel = 'polynomial_classification';
     rbg_Kernel = 'rbf_classification';
-
-    % Additional vars for rbg
-    addParameter(rbg_input, 'KernelScale', defaultKernalScale, @isnumeric);
-
-    % Additional vars for polynomial
-    addParameter(poly_input, 'PolynomialOrder', defaultPolynomialOrder, @isnumeric);
 end
 
 % To keep track and modify additional vars
@@ -106,15 +82,6 @@ svm_rbg_best = {};
 for i=1:OUTER_kFOLD
     % Set up model in this loop
 
-    % Parse the additional variables
-    parse(linear_input, linear_val{:});
-    parse(poly_input, poly_val{:});
-    parse(rbg_input, rbg_val{:});
-
-    %disp(linear_input.Results);
-    %disp(poly_input.Results);
-    %disp(rbg_input.Results);
-
     for j=1:INNER_kFOLD
         % Test out model in this loop
         % data segmentation
@@ -122,9 +89,9 @@ for i=1:OUTER_kFOLD
         k_train_indices = ~k_test_indices;
 
         % Train SVMs
-        svm_linear = SVM(X(k_train_indices, :), Y(k_train_indices, :), linear_Kernel, linear_input.Results);
-        svm_poly = SVM(X(k_train_indices, :), Y(k_train_indices, :), poly_Kernel, poly_input.Results);
-        svm_rbg = SVM(X(k_train_indices, :), Y(k_train_indices, :), rbg_Kernel, rbg_input.Results);
+        svm_linear = SVM(X(k_train_indices, :), Y(k_train_indices, :), linear_Kernel, linear_val{:});
+        svm_poly = SVM(X(k_train_indices, :), Y(k_train_indices, :), poly_Kernel, poly_val{:});
+        svm_rbg = SVM(X(k_train_indices, :), Y(k_train_indices, :), rbg_Kernel, rbg_val{:});
 
         % Test the SVMs
         output_linear = predict(svm_linear, X(k_test_indices, :));
@@ -164,15 +131,11 @@ for i=1:OUTER_kFOLD
         average_MSE_poly = mean(mean_square_err_poly);
         average_MSE_rbg = mean(mean_square_err_rbg);
 
-        %disp(average_MSE_linear);
-        %disp(average_MSE_poly);
-        %disp(average_MSE_rbg);
-
         % to keep track of the best accuracy/score
         if i == 1
             score_linear_best = average_MSE_linear;
             score_poly_best = average_MSE_poly;
-            score_rbg_best = average_MSE_rbg; 
+            score_rbg_best = average_MSE_rbg;
             svm_linear_best = svm_linear;
             svm_poly_best = svm_poly;
             svm_rbg_best = svm_rbg;
@@ -197,18 +160,10 @@ for i=1:OUTER_kFOLD
         [acc_poly,rec_poly,pre_poly,f1_poly] = confusion_rates(sum_confusion_poly);
         [acc_rbg,rec_rbg,pre_rbg,f1_rbg] = confusion_rates(sum_confusion_rbg);
 
-        %disp(acc_linear);
-        %disp(acc_poly);
-        %disp(acc_rbg);
-
         % average misclassification error
         average_MCE_linear = mean(missclassification_linear);
         average_MCE_poly = mean(missclassification_poly);
         average_MCE_rbg = mean(missclassification_rbg);
-
-        %disp(average_MCE_linear);
-        %disp(average_MCE_poly);
-        %disp(average_MCE_rbg);
 
         % to keep track of the best accuracy/score
         if i == 1
@@ -235,10 +190,6 @@ for i=1:OUTER_kFOLD
         end
 
     end 
-
-    disp(['best linear: ' string(score_linear_best)]);
-    disp(['best poly: ' string(score_poly_best)]);
-    disp(['best rbg: ' string(score_rbg_best)]);
 
     % Random Search algorithm for the next SVM configuration    
     if IS_REGRESSION
