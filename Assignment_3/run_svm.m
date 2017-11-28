@@ -68,9 +68,13 @@ missclassification_linear = zeros([INNER_kFOLD 1]);
 missclassification_poly = zeros([INNER_kFOLD 1]);
 missclassification_rbg = zeros([INNER_kFOLD 1]);
 
-% cross-validate
+% To keep track of parameters
+history_epsilon = zeros([OUTER_kFOLD 1]);
+history_polyOrder = zeros([OUTER_kFOLD 1]);
+history_kernelScale = zeros([OUTER_kFOLD 1]);
+
+% OUTER FOLD = Number of Trials
 for i=1:OUTER_kFOLD
-    % Set up model in this loop
 
     for j=1:INNER_kFOLD
         % Test out model in this loop
@@ -98,7 +102,6 @@ for i=1:OUTER_kFOLD
             mean_square_err_linear(j) = immse(regression_output_linear(k_test_indices, :, j), Y(k_test_indices, :));
             mean_square_err_poly(j) = immse(regression_output_poly(k_test_indices, :, j), Y(k_test_indices, :));
             mean_square_err_rbg(j) = immse(regression_output_rbg(k_test_indices, :, j), Y(k_test_indices, :));
-
         else
             % (Classification) Accuracy calculation using confusion matrix
             % sum up all confusion matrix during k fold
@@ -111,7 +114,6 @@ for i=1:OUTER_kFOLD
 
             [missclassification_rbg(j),confusion_rbg(:, :, j),~,~] = confusion(Y(k_test_indices, :)', output_rbg');
             sum_confusion_rbg = sum_confusion_rbg + confusion_rbg(:, :, j);
-
         end
     end
 
@@ -164,7 +166,7 @@ for i=1:OUTER_kFOLD
             svm_poly_best = svm_poly;
             svm_rbg_best = svm_rbg;
         else 
-            % Check if it is a better model
+            % Check if it is a better model, save it if it is
             if average_MCE_linear < score_linear_best
                 score_linear_best = average_MCE_linear;
                 svm_linear_best = svm_linear;
@@ -178,45 +180,40 @@ for i=1:OUTER_kFOLD
                 svm_rbg_best = svm_rbg;
             end
         end
-
     end 
 
-    % Random Search algorithm for the next SVM configuration    
+    % Random Search algorithm for the next SVM configurations    
     if IS_REGRESSION
         % Randomise/Tweak Epsilon
-        %epsilon = linear_input.Results.Epsilon - EPSILON_DELTA;
         epsilon = MIN_EPSILON + rand()*(MAX_EPSILON-MIN_EPSILON);
-
+        history_epsilon(i) = epsilon;
         % Set up new linear SVM arguments       
         linear_val = {'Epsilon', epsilon};
 
         % Randomise/Tweak polynomial order
-        %polynomial_order = poly_input.Results.PolynomialOrder - POLY_DELTA;
-        polynomial_order = MIN_POLY + rand()*(MAX_POLY-MIN_POLY);
-
+        polynomial_order = ceil(MIN_POLY + rand()*(MAX_POLY-MIN_POLY));
+        history_polyOrder(i) = polynomial_order;
         % set up new polynomial SVM configuration
-        poly_val = {'Epsilon', epsilon, 'PolynomialOrder', ceil(polynomial_order)};
+        poly_val = {'Epsilon', epsilon, 'PolynomialOrder', polynomial_order};
 
         % Randomise/Tweak rbg Kernel Scale
-        %kernel_scale = KS_DELTA + rbg_input.Results.KernelScale;
-        kernel_scale = MIN_KS + rand()*(MAX_KS-MIN_KS);
-
+        kernel_scale = ceil(MIN_KS + rand()*(MAX_KS-MIN_KS));
+        history_kernelScale(i) = kernel_scale;
         % set up new rbg SVM configuration
-        rbg_val = {'Epsilon', epsilon, 'KernelScale', ceil(kernel_scale)};
+        rbg_val = {'Epsilon', epsilon, 'KernelScale', kernel_scale};
     else        
         % Randomise/Tweak polynomial order
-        %polynomial_order = poly_input.Results.PolynomialOrder - POLY_DELTA;
-        polynomial_order = MIN_POLY + rand()*(MAX_POLY-MIN_POLY);
-
+        polynomial_order = ceil(MIN_POLY + rand()*(MAX_POLY-MIN_POLY));
+        history_polyOrder(i) = polynomial_order;
         % set up new polynomia SVM configuration
-        poly_val = {'PolynomialOrder', ceil(polynomial_order)};
-
-        % Randomise/Tweak rbg Kernel Scale
-        %kernel_scale = KS_DELTA + rbg_input.Results.KernelScale;
-        kernel_scale = MIN_KS + rand()*(MAX_KS-MIN_KS);
+        poly_val = {'PolynomialOrder', polynomial_order};
         
+        % Randomise/Tweak rbg Kernel Scale
+        kernel_scale = ceil(MIN_KS + rand()*(MAX_KS-MIN_KS));
+        history_kernelScale(i) = kernel_scale;
         % set up new rbg SVM configuration
-        rbg_val = {'KernelScale', ceil(kernel_scale)};
+        rbg_val = {'KernelScale', kernel_scale};
     end
-
 end
+
+% Plot parameters and accuracy
