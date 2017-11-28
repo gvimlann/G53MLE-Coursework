@@ -5,7 +5,7 @@
 
 % constants
 IS_REGRESSION = 0;
-NUM_OF_TRIALS = 5;
+NUM_OF_TRIALS = 10;
 INNER_kFOLD = 5;
 
 % Min Constants
@@ -15,8 +15,8 @@ MIN_KS = 1;
 
 % Max Constants
 MAX_EPSILON = 2;
-MAX_POLY = 12;
-MAX_KS = 12;
+MAX_POLY = 64;
+MAX_KS = 64;
 
 SEED = 432;
 % Initialise random number generator with seed
@@ -224,3 +224,34 @@ for i=1:NUM_OF_TRIALS
 end
 
 % Plot parameters and accuracy
+if IS_REGRESSION
+    figure();
+    scatter(history_epsilon, average_err_linear);
+    title('Error rate (Linear) vs Epsilon');
+    xlabel('Epsilon');
+    ylabel('Error rate');
+
+    figure();
+    scatter(history_epsilon, average_err_poly);
+    title('Error rate (Poly) vs Epsilon');
+    xlabel('Epsilon');
+    ylabel('Error rate');
+
+    figure();
+    scatter(history_epsilon, average_err_rbg);
+    title('Error rate (RBF) vs Epsilon');
+    xlabel('Epsilon');
+    ylabel('Error rate');
+end
+
+figure();
+scatter(history_polyOrder, average_err_poly);
+title('Error rate (Poly) vs Polynomial Order (q)');
+xlabel('Polynomial Order (q)');
+ylabel('Error rate');
+
+figure();
+scatter(history_kernelScale, average_err_rbg);
+title('Error rate (RBF) vs KernelScale (sigma)');
+xlabel('KernelScale (sigma)')
+ylabel('Error rate');
