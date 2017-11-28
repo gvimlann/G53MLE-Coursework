@@ -95,6 +95,7 @@ if is_regression
 else
     STORE_TRUE_Y = 6;
 end
+output_allmodel = zeros([length(Y(kindices == 1)) 1 STORE_TRUE_Y kfolds]);
 
 disp('Start cv')
 
@@ -157,20 +158,18 @@ model_cmp = (num_model*(num_model-1)/2);
 % 4 - SVML-SVMP; 5 - SVML-SVMG;
 % 6 - SVMP-SVMG;
 % stats_score
-% 1 - H; 2 - P; 3 - CI; 4 - STATS
+% 1 - H; 2 - P;
 stats_store = zeros([2 model_cmp kfolds]);
 for li = 1:kfolds
     compare = 2;
     pointer = 1;
-    ticker = 1;
-    while pointer < num_model-1
-        if compare == num_model
+    for ji = 1:model_cmp
+        if compare > num_model
             pointer = pointer + 1;
             compare = pointer + 1;
         end
-        [stats_store(1, pointer, li),stats_store(2, pointer, li),~,~] = ttest2(output_allmodel(:, :, pointer, li), output_allmodel(:, :, compare, li));
+        [stats_store(1, ji, li),stats_store(2, ji, li),~,~] = ttest2(output_allmodel(:, :, pointer, li), output_allmodel(:, :, compare, li));
         compare = compare + 1;
-        ticker = ticker + 1;
     end
 end
 
@@ -196,7 +195,7 @@ else
     for li = 1:num_model
         sum_cm = zeros([2 2]);
         for k = 1:kfolds
-            [~,cm,~,~] = confusion(output_allmodel(:, :, STORE_TRUE_Y, k), output_allmodel(:, :, li, k));
+            [~,cm,~,~] = confusion(output_allmodel(:, :, STORE_TRUE_Y, k)', output_allmodel(:, :, li, k)');
             sum_cm = sum_cm + cm;
         end
         [ANS_conf_rates(1, li),ANS_conf_rates(2, li),ANS_conf_rates(3, li),ANS_conf_rates(4, li)] = confusion_rates(sum_cm);
