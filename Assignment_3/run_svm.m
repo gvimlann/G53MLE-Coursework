@@ -10,13 +10,10 @@ INNER_kFOLD = 5;
 
 % Min Constants
 MIN_EPSILON = 0.1;
-MIN_POLY = 3;
-MIN_KS = 1;
 
 % Max Constants
 MAX_EPSILON = 2;
-MAX_POLY = 64;
-MAX_KS = 64;
+MAX_VAL = 32;
 
 SEED = 432;
 % Initialise random number generator with seed
@@ -78,6 +75,9 @@ average_err_linear = zeros([NUM_OF_TRIALS 1]);
 average_err_poly = zeros([NUM_OF_TRIALS 1]);
 average_err_rbg = zeros([NUM_OF_TRIALS 1]);
 
+% Generate random values as hyperparameters
+params = randperm(MAX_VAL, NUM_OF_TRIALS);
+
 % OUTER FOLD = Number of Trials
 for i=1:NUM_OF_TRIALS
 
@@ -90,26 +90,26 @@ for i=1:NUM_OF_TRIALS
         % Set up new linear SVM arguments       
         linear_val = {'Epsilon', epsilon};
 
-        % Randomise/Tweak polynomial order
-        polynomial_order = ceil(MIN_POLY + rand()*(MAX_POLY-MIN_POLY));
+        % Tweak polynomial order
+        polynomial_order = params(i);
         history_polyOrder(i) = polynomial_order;
         % set up new polynomial SVM configuration
         poly_val = {'Epsilon', epsilon, 'PolynomialOrder', polynomial_order};
 
-        % Randomise/Tweak rbg Kernel Scale
-        kernel_scale = ceil(MIN_KS + rand()*(MAX_KS-MIN_KS));
+        % Tweak rbg Kernel Scale
+        kernel_scale = params(i);
         history_kernelScale(i) = kernel_scale;
         % set up new rbg SVM configuration
         rbg_val = {'Epsilon', epsilon, 'KernelScale', kernel_scale};
     else        
-        % Randomise/Tweak polynomial order
-        polynomial_order = ceil(MIN_POLY + rand()*(MAX_POLY-MIN_POLY));
+        % Tweak polynomial order
+        polynomial_order = params(i);
         history_polyOrder(i) = polynomial_order;
         % set up new polynomia SVM configuration
         poly_val = {'PolynomialOrder', polynomial_order};
         
-        % Randomise/Tweak rbg Kernel Scale
-        kernel_scale = ceil(MIN_KS + rand()*(MAX_KS-MIN_KS));
+        % Tweak rbg Kernel Scale
+        kernel_scale = params(i);
         history_kernelScale(i) = kernel_scale;
         % set up new rbg SVM configuration
         rbg_val = {'KernelScale', kernel_scale};
