@@ -4,7 +4,7 @@
 % Random search is performed for hyperparameter optimisation
 
 % constants
-IS_REGRESSION = 0;
+IS_REGRESSION = 1;
 NUM_OF_TRIALS = 10;
 INNER_kFOLD = 5;
 

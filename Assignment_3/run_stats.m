@@ -1,5 +1,5 @@
 % constants
-is_regression = 1;
+is_regression = 0;
 kfolds = 5;
 CANN = 1;
 CSVML = 2;
@@ -46,11 +46,16 @@ if is_regression
     ann.trainParam.max_fail = 10;
     %===================================
     % SVM hyperparameters
-    PolyOrder = 3;
-    KernScale = 21;
-    Epsilon_lin = 0.6147;
-    Epsilon_poly = 0.07;
-    Epsilon_g = 0.38;
+%     PolyOrder = 3;
+%     KernScale = 21;
+%     Epsilon_lin = 0.6147;
+%     Epsilon_poly = 0.07;
+%     Epsilon_g = 0.38;
+    PolyOrder = 50;
+    KernScale = 39;
+    Epsilon_lin = 0.527;
+    Epsilon_poly = 0.7835;
+    Epsilon_g = 0.1532;
 else
     % ANN hyperparameters
     % init NN
@@ -71,8 +76,10 @@ else
     ann.trainParam.lr = 0.02;
     %===================================
     % SVM hyperparameters
-    PolyOrder = 3;
-    KernScale = 22;
+%     PolyOrder = 3;
+    PolyOrder = 25; % After run_svm overhaul
+%     KernScale = 22;
+    KernScale = 26; % After run_svm overhaul
 end
 
 % shared params for all models
