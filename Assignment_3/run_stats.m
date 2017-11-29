@@ -1,5 +1,5 @@
 % constants
-is_regression = 0;
+is_regression = 1;
 kfolds = 5;
 CANN = 1;
 CSVML = 2;
