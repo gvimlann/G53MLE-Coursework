@@ -149,7 +149,7 @@ for li = 1:kfolds
     ann = init(ann);
 end
 
-disp('End cv')
+disp('End cv')ANS_mode_model_significance
 
 disp('Start ttest2')
 % compare each model with against each other using ttest2
@@ -188,10 +188,10 @@ if is_regression
     % Get MSE for each model
     % 1 - ANN; 2 - SVML; 3 - SVMP; 4 - SVMG
     ANS_mses = zeros([1 num_model]);
-    parfor li = 1:num_model
+    for li = 1:num_model
         all_mse = zeros([1 kfolds]);
         for k = 1:kfolds
-            all_mse(:, k) = immse(Y(kindices == k), output_allmodel(:, :, STORE_TRUE_Y, k));
+            all_mse(:, k) = immse(output_allmodel(:, :, li, k), output_allmodel(:, :, STORE_TRUE_Y, k));
         end
         ANS_mses(:, li) = mean(all_mse);
     end
